@@ -10,3 +10,5 @@ Pacote atualizado de frameworks PHP para desenvolvimento ágil de APIs e/ou sist
 - **Laravel 5.7:** https://laravel.com/docs/5.7
 - **InfyOm Generator:** http://labs.infyom.com/laravelgenerator/
 - **Swaggervel:** https://github.com/appointer/swaggervel
+- **JWT OAuth2 Basic:** https://medium.com/modulr/create-api-authentication-with-passport-of-laravel-5-6-1dc2d400a7f
+- **JWT OAuth2 Full docs:** https://laravel.com/docs/5.7/passport#introduction
