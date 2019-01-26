@@ -8,4 +8,4 @@
     </div>
 @endsection
 
-@section('message', __($exception->getMessage() ?: 'Sorry, we are doing some maintenance. Please check back soon.'))
+@section('message', __($exception->getMessage() ?: 'Ops! Estamos em manutenção. Por favor, tente novamente em breve.'))

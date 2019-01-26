@@ -8,4 +8,4 @@
     </div>
 @endsection
 
-@section('message', __('Sorry, your session has expired. Please refresh and try again.'))
+@section('message', __('Ops! Sessão expirada. Atualize a página e tente novamente.'))
