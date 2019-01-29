@@ -16,3 +16,15 @@ Auth::routes();
 Route::get('/', 'HomeController@index');
 
 Route::get('/home', 'HomeController@index');
+
+Route::get('users/payment_panel', [
+	'as' => 'users.paymentPanel',
+	'uses' => 'UserController@paymentPanel'
+]);
+
+Route::resource('users', 'UserController');
+
+
+Route::resource('plans', 'PlanController');
+
+Route::resource('plans', 'PlanController');
