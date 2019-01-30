@@ -52,7 +52,8 @@ class User extends Model
         'plan_id',
         'last_payment',
         'remember_token',
-        'id_hotspot'
+        'id_hotspot',
+        'general_status_id'
     ];
 
     /**
@@ -70,7 +71,8 @@ class User extends Model
         'plan_id' => 'integer',
         'last_payment' => 'date',
         'remember_token' => 'string',
-        'id_hotspot' => 'string'
+        'id_hotspot' => 'string',
+        'general_status_id' => 'integer'
     ];
 
     /**

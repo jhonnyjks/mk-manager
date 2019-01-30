@@ -34,6 +34,7 @@ class UserRepository extends BaseRepository
         'cpf_cnpj',
         'user_type_id',
         'plan_id',
+        'general_status_id',
         'last_payment',
         'remember_token'
     ];
@@ -46,31 +47,38 @@ class UserRepository extends BaseRepository
         return User::class;
     }
 
-    /**
-     * Configure the Model
-     **/
-    public function syncData()
-    {
-        $API = new RouterosAPI();
-        $API->debug = false;
-        $API->connect('192.168.88.1', 'adminjk', '1236987487');
+    public function update(array $attributes, $id) 
+    { 
+        if(isset($attributes['last_payment'])) {
+            $user = User::find($id);
 
-        $getclock = $API->comm("/ip/hotspot/user/print", array(
-          //"count-only" => "",
-          "?profile" => "$prof",
-        ));
+            $API = new RouterosAPI();
+            $API->connect('192.168.98.66', 'adminjk', '1236987487');
 
-        dd($getclock);
+            $API->comm("/ip/hotspot/user/set", [
+                ".id" => $user->id_hotspot,
+                "disabled" => "no"
+            ]);
+
+            $hsUser = $API->comm("/ip/hotspot/user/print", [
+              "?name" => $user->username
+          ]);
+
+            if(empty($hsUser)) {
+                return [];
+            }
+        }
+
+        return parent::update($attributes, $id);
     }
 
     /**
-     * Configure the Model
+     * Carrega o necessário do mikrotik pra base do sistema
      **/
     public function loadDatabase()
     {
         $API = new RouterosAPI();
-        $API->debug = false;
-        $API->connect('192.168.88.1', 'adminjk', '1236987487');
+        $API->connect('192.168.98.66', 'adminjk', '1236987487');
 
         $profiles = $API->comm("/ip/hotspot/user/profile/print");
 
@@ -78,30 +86,37 @@ class UserRepository extends BaseRepository
             Plan::updateOrCreate(['id_hotspot' => $profile['.id']], [
                 'name' => $profile['name'],
                 'shared_users' => $profile['shared-users']
-                 ]);
+            ]);
         }
 
         $users = $API->comm("/ip/hotspot/user/print");/*, array(
           //"count-only" => "",
           "?profile" => "$prof",
-        ));*/
+      ));*/
 
-        $plans = Plan::get()->pluck('id', 'name')->toArray();
+      $plans = Plan::get()->pluck('id', 'name')->toArray();
 
-        foreach ($users as $user) {
-            if($user['name'] == 'default-trial') continue;
-            User::updateOrCreate(['id_hotspot' => $user['.id']], [
-                'name' => $user['name'],
-                'username' => $user['name'],
-                'email' => $user['name'].rand(1,9).'@login.net',
-                'user_type_id' => 3,
-                'password' => bcrypt($user['password']),
-                'plan_id' => $plans[$user['profile']],
-                // 'general_status_id' => $user['disabled'],
-                'last_payment' => (strlen($user['comment']) > 26 ? substr($user['comment'], 16, 11) : date("Y-m-d"))
-                 ]);
-        }
+      foreach ($users as $user) {
+
+        //TODO: implementar trial user; Implementar gerenciamento de Devices(login by MAC)
+        if($user['name'] == 'default-trial' or preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $user['name']) == 1) continue;
+
+        // if($user['name'] == 'dudu') dd($user['disabled'] == 'true' ? 2 : 1);
+
+        User::updateOrCreate(['id_hotspot' => $user['.id']], [
+            'name' => $user['name'],
+            'username' => $user['name'],
+            'email' => $user['name'].rand(10,99).'@login.net',
+            'user_type_id' => 3,
+            'password' => bcrypt($user['password']),
+            'plan_id' => $plans[$user['profile']],
+            'general_status_id' => ($user['disabled'] == 'true' ? 2 : 1)
+
+            //Linha específica para meu padrão de definir último pag no comment. Ex.: Primeiro_acesso-jul/25/2017,-- Nao pagou o mes
+            // 'last_payment' => (strlen($user['comment']) > 26 ? date('Y-m-d', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d"))
+        ]);
     }
+}
 }
 
 class RouterosAPI

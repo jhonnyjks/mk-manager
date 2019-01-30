@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>InfyOm Generator</title>
+    <meta http-equiv="refresh" content="60" >
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 
     <!-- Bootstrap 3.3.7 -->
@@ -65,7 +66,7 @@
            <td style="padding: 15px 5px;">R$ {!!  number_format($user->plan->price, 2, '.', ',') !!}</td>
             <td style="padding: 15px 5px;">{!! date("d/m/Y", strtotime($user->last_payment)) !!}</td>
             <td style="padding: 15px 10px;">
-                <a class="btn btn-success pull-right" style="font-size: 0.8em;" href="{!! route('users.show', [$user->id]) !!}" onclick="return confirm('Confirmar pagamento do usuário {!! $user->username !!}?')">PAGO</a>
+                <a class="btn btn-success pull-right" style="font-size: 0.8em;" href="{!! route('users.confirmPayment', [$user->id]) !!}" onclick="return confirm('Confirmar pagamento do usuário {!! $user->username !!}?')">PAGO</a>
             </td>
         </tr>
     @endforeach

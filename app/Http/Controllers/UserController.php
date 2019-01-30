@@ -34,7 +34,7 @@ class UserController extends AppBaseController
         $users = $this->userRepository->paginate(20);
 
         return view('users.index')
-            ->with('users', $users);
+        ->with('users', $users);
     }
 
     /**
@@ -162,14 +162,46 @@ class UserController extends AppBaseController
      */
     public function paymentPanel(Request $request)
     {
-         //$this->userRepository->syncData();
+       // $this->userRepository->loadDatabase();
 
-         $this->userRepository->loadDatabase();
+       $this->userRepository->pushCriteria(new RequestCriteria($request));
+       $users = $this->userRepository->makeModel()
+       ->where([
+        'user_type_id' => 3,
+        ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))
+        ]])->get();
 
-        $this->userRepository->pushCriteria(new RequestCriteria($request));
-        $users = $this->userRepository->makeModel()->where(['user_type_id' => 3])->get();
+       return view('users.payment_panel')
+       ->with('users', $users);
+   }
 
-        return view('users.payment_panel')
-            ->with('users', $users);
+    /**
+     * Confirma o pagamento do usuário definindo o attr last_payment com a data atual 
+     *
+     * @param  int $id
+     *
+     * @return Response
+     */
+    public function confirmPayment($id)
+    {
+        $user = $this->userRepository->findWithoutFail($id);
+
+        if (empty($user)) {
+            Flash::error('Usuário não encontrado.');
+
+            return redirect(route('users.paymentPanel'));
+        }
+
+        $user = $this->userRepository->update(['last_payment' => date('Y-m-d')],$id);
+
+        if(empty($user)) {
+            Flash::error('Não foi possível confirmar o pagamento do usuário <b>'.$user->username.'</b>. Por favor, tente novamente.');
+
+            return redirect(route('users.paymentPanel'));
+        }
+
+        Flash::success('Pagamento do usuário <b>'.$user->username.'</b> confirmado!');
+
+        return redirect(route('users.paymentPanel'));
     }
 }
