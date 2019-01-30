@@ -1,11 +1,12 @@
-# laravel5.7-generator
-Pacote atualizado de frameworks PHP para desenvolvimento ágil de APIs e/ou sistemas completos. Possibilita desenvolver, de forma ágil, sistemas ou serviços com código bem estruturado. Óbvio, o gerador é só um auxiliar, as especificidades ficam por conta do programador.
+# Mikrotik Manager em Laravel 5.7
+Sistema de gerenciamento de PAGAMENTOS de clientes de provedores com Mikrotik RouterOS. A intenção é gerenciar os pagamentos dos clientes, ativando e desativando automaticamente os usuários, planos e outras funcionalidades do RouterOS. A intenção não é gerenciar todo o mikrotik, existem outros sistemas prontos pra isso.
+
 ## Instruções
 - **1** Preparar o sistema para rodar o Laravel, conforme documentação: https://laravel.com/docs/5.7/installation
 - **2** Não criar projeto laravel, apenas clonar este repositório
 - **3** Instalar o projeto e baixar dependências com o comando "composer install"
 - **4** Configurar o Laravel no .env conforme documentação
-- **5** Utilizar os comandos do InfyOm: http://labs.infyom.com/laravelgenerator/docs/5.6/getting-started
+- **5** Subir o arquivo .sql (na raiz deste projeto) para seu SGBD MySQL
 ## Referências 
 - **Laravel 5.7:** https://laravel.com/docs/5.7
 - **InfyOm Generator:** http://labs.infyom.com/laravelgenerator/
