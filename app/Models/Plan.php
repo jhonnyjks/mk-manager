@@ -25,7 +25,7 @@ class Plan extends Model
 
 
     public $fillable = [
-        'hotspot_id',
+        'id_hotspot',
         'name',
         'price',
         'shared_users'
@@ -38,7 +38,7 @@ class Plan extends Model
      */
     protected $casts = [
         'id' => 'integer',
-        'hotspot_id' => 'string',
+        'id_hotspot' => 'string',
         'name' => 'string',
         'shared_users' => 'integer'
     ];

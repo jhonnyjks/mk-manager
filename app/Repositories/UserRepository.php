@@ -35,8 +35,10 @@ class UserRepository extends BaseRepository
         'user_type_id',
         'plan_id',
         'general_status_id',
+        'payment_promise',
         'last_payment',
-        'remember_token'
+        'remember_token',
+        'id_hotspot'
     ];
 
     /**
@@ -53,7 +55,7 @@ class UserRepository extends BaseRepository
             $user = User::find($id);
 
             $API = new RouterosAPI();
-            $API->connect('192.168.98.66', 'adminjk', '1236987487');
+            $API->connect('192.168.98.66', 'teste', '123456789');
 
             $API->comm("/ip/hotspot/user/set", [
                 ".id" => $user->id_hotspot,
@@ -61,15 +63,98 @@ class UserRepository extends BaseRepository
             ]);
 
             $hsUser = $API->comm("/ip/hotspot/user/print", [
-              "?name" => $user->username
+              "?.id" => $user->id_hotspot
           ]);
 
             if(empty($hsUser)) {
                 return [];
             }
+        } else {
+            return [];
         }
 
         return parent::update($attributes, $id);
+    }
+
+    public function promisePayment($id) 
+    { 
+
+        $user = User::find($id);
+
+        if(!empty($user) && $user->payment_promise < 2) {
+
+            $API = new RouterosAPI();
+            $API->connect('192.168.98.66', 'teste', '123456789');
+
+            $API->comm("/ip/hotspot/user/set", [
+                ".id" => $user->id_hotspot,
+                "disabled" => "no"
+            ]);
+
+            $hsUser = $API->comm("/ip/hotspot/user/print", [
+              "?.id" => $user->id_hotspot
+          ]);
+
+            if(empty($hsUser)) {
+                return [];
+            }
+        } else {
+            return [];
+        }
+
+        $user->update(['payment_promise' => $user->payment_promise + 1]);
+        return $user;
+    }
+
+    /**
+     * Verifica os pacotes vencidos e desativa as contas. Deve ficar em Scheduller/Cron diário
+     **/
+    public function updatePaymentSituations() 
+    { 
+        $API = new RouterosAPI();
+        $API->connect('192.168.98.66', 'teste', '123456789');
+
+        $pendingUsers = $this->model
+        //Retorna usários com pacotes vencidos em 3 prazos: o normal, uma promessa de pagamento de 3 dias e outra de 6 dias.
+        ->where([
+            'user_type_id' => 3,
+            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))],
+            'general_status_id' => 1,
+            'payment_promise' => 0
+        ])->orWhere([
+            ['user_type_id', '=', 3],
+            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 33 days'))],
+            ['general_status_id', '=', 1],
+            ['payment_promise', '=', 1]
+        ])->orWhere([
+            ['user_type_id', '=', 3],
+            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 36 days'))],
+            ['general_status_id', '=', 1],
+            ['payment_promise', '=', 2]
+        ])->get();
+
+        foreach ($pendingUsers as $user) {
+            $API->comm("/ip/hotspot/user/set", [
+                ".id" => $user->id_hotspot,
+                "disabled" => "yes"
+            ]);
+
+            $hsUser = $API->comm("/ip/hotspot/user/print", [
+                "?.id" => $user->id_hotspot
+            ]);
+
+            if(!empty($hsUser) && $user->id_hotspot == $hsUser[0]['.id']) {
+                $user->update(['general_status_id' => 2]);
+            }
+        }
+
+        $rest = $this->model->where([
+            'user_type_id' => 3,
+            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))],
+            'general_status_id' => 1
+        ])->get();
+
+        echo 'Alterados: '.(sizeof($pendingUsers)-sizeof($rest)).'/'.sizeof($pendingUsers);
     }
 
     /**
@@ -78,7 +163,7 @@ class UserRepository extends BaseRepository
     public function loadDatabase()
     {
         $API = new RouterosAPI();
-        $API->connect('192.168.98.66', 'adminjk', '1236987487');
+        $API->connect('192.168.98.66', 'teste', '123456789');
 
         $profiles = $API->comm("/ip/hotspot/user/profile/print");
 
@@ -113,7 +198,7 @@ class UserRepository extends BaseRepository
             'general_status_id' => ($user['disabled'] == 'true' ? 2 : 1)
 
             //Linha específica para meu padrão de definir último pag no comment. Ex.: Primeiro_acesso-jul/25/2017,-- Nao pagou o mes
-            // 'last_payment' => (strlen($user['comment']) > 26 ? date('Y-m-d', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d"))
+            //,'last_payment' => (strlen($user['comment']) > 26 ? date('Y-m-d', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d"))
         ]);
     }
 }

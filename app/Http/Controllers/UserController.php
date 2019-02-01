@@ -169,7 +169,7 @@ class UserController extends AppBaseController
        ->where([
         'user_type_id' => 3,
         ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))
-        ]])->get();
+        ]])->orderBy('username')->get();
 
        return view('users.payment_panel')
        ->with('users', $users);
@@ -192,7 +192,7 @@ class UserController extends AppBaseController
             return redirect(route('users.paymentPanel'));
         }
 
-        $user = $this->userRepository->update(['last_payment' => date('Y-m-d')],$id);
+        $user = $this->userRepository->update(['last_payment' => date('Y-m-d'), 'payment_promise' => 0],$id);
 
         if(empty($user)) {
             Flash::error('Não foi possível confirmar o pagamento do usuário <b>'.$user->username.'</b>. Por favor, tente novamente.');
@@ -203,5 +203,40 @@ class UserController extends AppBaseController
         Flash::success('Pagamento do usuário <b>'.$user->username.'</b> confirmado!');
 
         return redirect(route('users.paymentPanel'));
+    }
+
+    /**
+     * Confirma o pagamento do usuário definindo o attr last_payment com a data atual 
+     *
+     * @param  int $id
+     *
+     * @return Response
+     */
+    public function promisePayment($id)
+    {
+        $user = $this->userRepository->findWithoutFail($id);
+
+        if (empty($user)) {
+            Flash::error('Usuário não encontrado.');
+
+            return redirect(route('users.paymentPanel'));
+        }
+
+        $user = $this->userRepository->promisePayment($id);
+
+        if(empty($user)) {
+            Flash::error('Não foi possível registrar a promessa de pagamento do usuário. Por favor, tente novamente.');
+
+            return redirect(route('users.paymentPanel'));
+        }
+
+        Flash::success('Promessa de pagamento do usuário <b>'.$user->username.'</b> confirmada!');
+
+        return redirect(route('users.paymentPanel'));
+    }
+
+    public function updatePaymentSituations()
+    {
+        $this->userRepository->updatePaymentSituations();
     }
 }

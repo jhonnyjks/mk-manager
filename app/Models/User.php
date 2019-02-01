@@ -53,7 +53,8 @@ class User extends Model
         'last_payment',
         'remember_token',
         'id_hotspot',
-        'general_status_id'
+        'general_status_id',
+        'payment_promise'
     ];
 
     /**
@@ -72,7 +73,8 @@ class User extends Model
         'last_payment' => 'date',
         'remember_token' => 'string',
         'id_hotspot' => 'string',
-        'general_status_id' => 'integer'
+        'general_status_id' => 'integer',
+        'payment_promise' => 'integer'
     ];
 
     /**

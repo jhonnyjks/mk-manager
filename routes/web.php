@@ -27,6 +27,17 @@ Route::get('users/payment_panel/confirm/{id}', [
 	'uses' => 'UserController@confirmPayment'
 ]);
 
+Route::get('users/payment_panel/promise/{id}', [
+	'as' => 'users.promisePayment',
+	'uses' => 'UserController@promisePayment'
+]);
+
+//Verifica os pacotes vencidos e desativa as contas. Deve ficar em Scheduller/Cron diário
+Route::get('users/payments/update_situations', [
+	'as' => 'users.updatePaymentSituations',
+	'uses' => 'UserController@updatePaymentSituations'
+]);
+
 Route::resource('users', 'UserController');
 
 
