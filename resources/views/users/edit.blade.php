@@ -3,7 +3,7 @@
 @section('content')
     <section class="content-header">
         <h1>
-            User
+            Editar usuário {!! !empty($user->username) ? $user->username : $user->name !!}
         </h1>
    </section>
    <div class="content">

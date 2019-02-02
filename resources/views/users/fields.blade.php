@@ -1,6 +1,6 @@
 <!-- Name Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('name', 'Name:') !!}
+    {!! Form::label('name', 'Nome:') !!}
     {!! Form::text('name', null, ['class' => 'form-control']) !!}
 </div>
 
@@ -10,68 +10,46 @@
     {!! Form::email('email', null, ['class' => 'form-control']) !!}
 </div>
 
+<!-- Celphone Field -->
+<div class="form-group col-sm-6">
+    {!! Form::label('celphone', 'Celular:') !!}
+    {!! Form::number('celphone', null, ['class' => 'form-control']) !!}
+</div>
+
 <!-- Username Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('username', 'Username:') !!}
-    {!! Form::text('username', null, ['class' => 'form-control']) !!}
+    {!! Form::label('username', 'Usuário:') !!}
+    {!! Form::text('username', null, ['class' => 'form-control', 'max-length' => 20]) !!}
 </div>
 
 <!-- Password Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('password', 'Password:') !!}
+    {!! Form::label('password', 'Senha:') !!}
     {!! Form::password('password', ['class' => 'form-control']) !!}
 </div>
 
-<!-- Email Verified At Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('email_verified_at', 'Email Verified At:') !!}
-    {!! Form::date('email_verified_at', null, ['class' => 'form-control']) !!}
-</div>
-
-<!-- Phone Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('phone', 'Phone:') !!}
-    {!! Form::number('phone', null, ['class' => 'form-control']) !!}
-</div>
-
-<!-- Celphone Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('celphone', 'Celphone:') !!}
-    {!! Form::number('celphone', null, ['class' => 'form-control']) !!}
-</div>
-
-<!-- Cpf Cnpj Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('cpf_cnpj', 'Cpf Cnpj:') !!}
-    {!! Form::number('cpf_cnpj', null, ['class' => 'form-control']) !!}
-</div>
-
+@if(1 == Auth::user()->user_type_id)
 <!-- User Type Id Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('user_type_id', 'User Type Id:') !!}
-    {!! Form::number('user_type_id', null, ['class' => 'form-control']) !!}
+    {!! Form::label('user_type_id', 'Tipo:') !!}
+    {!! Form::select('user_type_id', $userTypes, null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Plan Id Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('plan_id', 'Plan Id:') !!}
-    {!! Form::number('plan_id', null, ['class' => 'form-control']) !!}
+    {!! Form::label('general_status_id', 'Status:') !!}
+    {!! Form::select('general_status_id', $generalStatuses, null, ['class' => 'form-control']) !!}
 </div>
+@endif
 
-<!-- Last Payment Field -->
+<!-- Plan Id Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('last_payment', 'Last Payment:') !!}
-    {!! Form::date('last_payment', null, ['class' => 'form-control']) !!}
-</div>
-
-<!-- Remember Token Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('remember_token', 'Remember Token:') !!}
-    {!! Form::text('remember_token', null, ['class' => 'form-control']) !!}
+    {!! Form::label('plan_id', 'Pacote:') !!}
+    {!! Form::select('plan_id', $plans, null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Submit Field -->
 <div class="form-group col-sm-12">
-    {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
-    <a href="{!! route('users.index') !!}" class="btn btn-default">Cancel</a>
+    {!! Form::submit('Salvar', ['class' => 'btn btn-primary']) !!}
+    <a href="{!! route('users.index') !!}" class="btn btn-default">Cancelar</a>
 </div>

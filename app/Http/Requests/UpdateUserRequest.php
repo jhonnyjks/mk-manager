@@ -25,6 +25,11 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules()
     {
-        return User::$rules;
+        $this->password = '123456';
+        $rules = User::$rules;
+        $rules['username'] = $rules['username'].','.$this->route('user').',id';
+        // if(empty($this->password)) unset($rules['password']);
+
+        return $rules;
     }
 }

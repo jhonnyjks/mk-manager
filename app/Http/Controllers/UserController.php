@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Repositories\UserRepository;
+use App\Repositories\PlanRepository;
+use App\Repositories\GeneralStatusRepository;
+use App\Repositories\UserTypeRepository;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Flash;
@@ -15,11 +18,20 @@ class UserController extends AppBaseController
 {
     /** @var  UserRepository */
     private $userRepository;
+    private $planRepository;
+    private $userTypeRepository;
+    private $generalStatusRepository;
 
-    public function __construct(UserRepository $userRepo)
+    public function __construct(UserRepository $userRepo, 
+        PlanRepository $planRepo, 
+        UserTypeRepository $userTypeRepo,
+        GeneralStatusRepository $generalStatusRepo)
     {
         $this->middleware('auth');
         $this->userRepository = $userRepo;
+        $this->planRepository = $planRepo;
+        $this->userTypeRepository = $userTypeRepo;
+        $this->generalStatusRepository = $generalStatusRepo;
     }
 
     /**
@@ -30,6 +42,10 @@ class UserController extends AppBaseController
      */
     public function index(Request $request)
     {
+        if(auth()->user()->user_type_id != 1) {
+            return redirect(route('users.paymentPanel'));
+        }
+
         $this->userRepository->pushCriteria(new RequestCriteria($request));
         $users = $this->userRepository->paginate(20);
 
@@ -44,7 +60,17 @@ class UserController extends AppBaseController
      */
     public function create()
     {
-        return view('users.create');
+        $plans = $this->planRepository->pluck('name', 'id')->toArray();
+        array_unshift($plans, 'Selecione');
+        $userTypes = $this->userTypeRepository->pluck('name', 'id')->toArray();
+        array_unshift($userTypes, 'Selecione');
+        $generalStatuses = $this->generalStatusRepository->pluck('name', 'id')->toArray();
+        array_unshift($generalStatuses, 'Selecione');
+
+        return view('users.create')
+        ->with('plans', $plans)
+        ->with('userTypes', $userTypes)
+        ->with('generalStatuses', $generalStatuses);
     }
 
     /**
@@ -60,9 +86,13 @@ class UserController extends AppBaseController
 
         $user = $this->userRepository->create($input);
 
-        Flash::success('User saved successfully.');
+        Flash::success('Usuário adicionado com sucesso!');
 
-        return redirect(route('users.index'));
+        if(auth()->user()->user_type_id != 1) {
+            return redirect(route('users.paymentPanel'));
+        } else {
+            return redirect(route('users.index'));
+        }
     }
 
     /**
@@ -77,7 +107,7 @@ class UserController extends AppBaseController
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {
-            Flash::error('User not found');
+            Flash::error('Usuário não encontrado');
 
             return redirect(route('users.index'));
         }
@@ -94,15 +124,30 @@ class UserController extends AppBaseController
      */
     public function edit($id)
     {
+        if(auth()->user()->user_type_id > 2) {
+            $id = auth()->user()->id;
+        }
+
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {
-            Flash::error('User not found');
+            Flash::error('Usuário não encontrado');
 
             return redirect(route('users.index'));
         }
 
-        return view('users.edit')->with('user', $user);
+        $plans = $this->planRepository->pluck('name', 'id')->toArray();
+        array_unshift($plans, 'Selecione');
+        $userTypes = $this->userTypeRepository->pluck('name', 'id')->toArray();
+        array_unshift($userTypes, 'Selecione');
+        $generalStatuses = $this->generalStatusRepository->pluck('name', 'id')->toArray();
+        array_unshift($generalStatuses, 'Selecione');
+
+        return view('users.edit')
+        ->with('user', $user)
+        ->with('plans', $plans)
+        ->with('userTypes', $userTypes)
+        ->with('generalStatuses', $generalStatuses);
     }
 
     /**
@@ -115,19 +160,31 @@ class UserController extends AppBaseController
      */
     public function update($id, UpdateUserRequest $request)
     {
+        if(auth()->user()->user_type_id > 2) {
+            return $this->edit($id);
+        }
+
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {
-            Flash::error('User not found');
+            Flash::error('Usuário não encontrado');
 
-            return redirect(route('users.index'));
+            if(auth()->user()->user_type_id != 1) {
+                return redirect(route('users.paymentPanel'));
+            } else {
+                return redirect(route('users.index'));
+            }
         }
 
         $user = $this->userRepository->update($request->all(), $id);
 
-        Flash::success('User updated successfully.');
+        Flash::success('Usuário alterado com sucesso!');
 
-        return redirect(route('users.index'));
+        if(auth()->user()->user_type_id != 1) {
+            return redirect(route('users.paymentPanel'));
+        } else {
+            return redirect(route('users.index'));
+        }
     }
 
     /**
@@ -139,17 +196,21 @@ class UserController extends AppBaseController
      */
     public function destroy($id)
     {
+        if(auth()->user()->user_type_id > 2) {
+            return $this->edit($id);
+        }
+
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {
-            Flash::error('User not found');
+            Flash::error('Usuário não encontrado');
 
             return redirect(route('users.index'));
         }
 
         $this->userRepository->delete($id);
 
-        Flash::success('User deleted successfully.');
+        Flash::success('Usuário deletado com sucesso!');
 
         return redirect(route('users.index'));
     }
@@ -164,16 +225,23 @@ class UserController extends AppBaseController
     {
        // $this->userRepository->loadDatabase();
 
-       $this->userRepository->pushCriteria(new RequestCriteria($request));
-       $users = $this->userRepository->makeModel()
-       ->where([
-        'user_type_id' => 3,
-        ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))
+        if(auth()->user()->user_type_id > 2) {
+            return $this->edit($id);
+        }
+
+        $this->userRepository->pushCriteria(new RequestCriteria($request));
+        $users = $this->userRepository->makeModel()
+        ->where([
+            'user_type_id' => 3,
+            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))
+        ]])->orWhere([
+            'user_type_id' => 3,
+            ['last_payment', '=', null
         ]])->orderBy('username')->get();
 
-       return view('users.payment_panel')
-       ->with('users', $users);
-   }
+        return view('users.payment_panel')
+        ->with('users', $users);
+    }
 
     /**
      * Confirma o pagamento do usuário definindo o attr last_payment com a data atual 
@@ -184,6 +252,11 @@ class UserController extends AppBaseController
      */
     public function confirmPayment($id)
     {
+
+        if(auth()->user()->user_type_id > 2) {
+            return $this->edit($id);
+        }
+
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {
@@ -195,7 +268,7 @@ class UserController extends AppBaseController
         $user = $this->userRepository->update(['last_payment' => date('Y-m-d'), 'payment_promise' => 0],$id);
 
         if(empty($user)) {
-            Flash::error('Não foi possível confirmar o pagamento do usuário <b>'.$user->username.'</b>. Por favor, tente novamente.');
+            Flash::error('Não foi possível confirmar o pagamento desse usuário. Por favor, tente novamente.');
 
             return redirect(route('users.paymentPanel'));
         }
@@ -214,6 +287,10 @@ class UserController extends AppBaseController
      */
     public function promisePayment($id)
     {
+        if(auth()->user()->user_type_id > 2) {
+            return $this->edit($id);
+        }
+
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {

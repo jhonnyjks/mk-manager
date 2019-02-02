@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Validation\Rule;
 
 /**
  * Class User
@@ -44,17 +45,17 @@ class User extends Model
         'email',
         'username',
         'password',
-        'email_verified_at',
+        // 'email_verified_at',
         'phone',
         'celphone',
         'cpf_cnpj',
         'user_type_id',
         'plan_id',
         'last_payment',
-        'remember_token',
-        'id_hotspot',
+        // 'remember_token',
+         'id_hotspot',
         'general_status_id',
-        'payment_promise'
+        // 'payment_promise'
     ];
 
     /**
@@ -83,7 +84,13 @@ class User extends Model
      * @var array
      */
     public static $rules = [
-        
+        'name' => 'required|min:5|max:90',
+        'email' => 'email|max:255',
+        'username' => 'required|alpha_num|between:4,20|unique:users,username',
+        // 'password' => 'required|alpha_num|min:4|max:20',
+        'user_type_id' => 'numeric|exists:user_types,id',
+        'general_status_id' => 'numeric|exists:general_statuses,id',
+        'plan_id' => 'numeric|exists:plans,id'
     ];
 
     /**

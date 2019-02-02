@@ -28,7 +28,6 @@ class UserRepository extends BaseRepository
         'email',
         'username',
         'password',
-        'email_verified_at',
         'phone',
         'celphone',
         'cpf_cnpj',
@@ -37,7 +36,6 @@ class UserRepository extends BaseRepository
         'general_status_id',
         'payment_promise',
         'last_payment',
-        'remember_token',
         'id_hotspot'
     ];
 
@@ -49,28 +47,90 @@ class UserRepository extends BaseRepository
         return User::class;
     }
 
-    public function update(array $attributes, $id) 
-    { 
-        if(isset($attributes['last_payment'])) {
-            $user = User::find($id);
+    public function create(array $attributes) 
+    {
+        // Segurança: se não for admin, só pode add usuario membro (type=3) 
+        if(auth()->guest() || (!auth()->guest() && auth()->user()->user_type_id != 1)) {
+            $attributes['general_status_id'] = 2;
+            $attributes['user_type_id'] = 3;
+        }
 
+        if(3 == $attributes['user_type_id']) {
             $API = new RouterosAPI();
             $API->connect('192.168.98.66', 'teste', '123456789');
 
-            $API->comm("/ip/hotspot/user/set", [
-                ".id" => $user->id_hotspot,
-                "disabled" => "no"
+            $API->comm('/ip/hotspot/user/add', [
+                'name' => $attributes['username'],
+                'profile' => Plan::find($attributes['plan_id'])->name,
+                'password' => $attributes['password'],
+                'disabled' => 'yes',
+                'server' => 'all'
             ]);
 
-            $hsUser = $API->comm("/ip/hotspot/user/print", [
-              "?.id" => $user->id_hotspot
-          ]);
+            $hsUser = $API->comm("/ip/hotspot/user/print", ["?name" => $attributes['username']]);
 
             if(empty($hsUser)) {
                 return [];
             }
+
+            $attributes['id_hotspot'] = $hsUser[0]['.id'];
+        }
+
+        $attributes['password'] = bcrypt($attributes['password']);
+        parent::create($attributes);
+    }
+
+    public function update(array $attributes, $id) 
+    { 
+
+        // Segurança: se não for admin, só pode add usuario membro (type=3) 
+        if(auth()->user()->user_type_id != 1) {
+
+            unset($attributes['user_type_id']);
+
+            if(auth()->user()->user_type_id != 2) {
+                unset($attributes['general_status_id']);
+            }
+        }
+
+        $user = User::find($id);
+
+        $params = [];
+        
+        if(!empty($attributes['password'])) {
+            $params['password'] = $attributes['password'];
+            $attributes['password'] = bcrypt($attributes['password']);
         } else {
-            return [];
+            $attributes['password'] = $user->password;
+        }
+
+        // Se a data de pagamento foi alterada, verifica se deve-se ativar o usuário
+        if(!empty($attributes['last_payment']) && date_diff(
+            date_create($attributes['last_payment']), date_create(date("Y-m-d")))->days < 31) {
+
+            $params['disabled'] = 'no';
+            $attributes['general_status_id'] = 1;
+        }
+
+        // Se a data de pagamento foi alterada, verifica se deve-se ativar o usuário
+        if(!empty($attributes['plan_id'])) {
+            $params['profile'] = Plan::find($attributes['plan_id'])->name;
+        }
+
+        if(!empty($params)) {
+            $user = User::find($id);
+
+            $params['.id'] = $user->id_hotspot;
+            
+            $API = new RouterosAPI();
+            $API->connect('192.168.98.66', 'teste', '123456789');            
+            $API->comm("/ip/hotspot/user/set", $params);
+
+            $hsUser = $API->comm("/ip/hotspot/user/print", ['?.id' => $user->id_hotspot]);
+
+            if(empty($hsUser)) {
+                return [];
+            }
         }
 
         return parent::update($attributes, $id);
@@ -102,9 +162,10 @@ class UserRepository extends BaseRepository
             return [];
         }
 
-        $user->update(['payment_promise' => $user->payment_promise + 1]);
+        $user->update(['payment_promise' => $user->payment_promise + 1, 'general_status_id' => 1]);
         return $user;
     }
+
 
     /**
      * Verifica os pacotes vencidos e desativa as contas. Deve ficar em Scheduller/Cron diário
@@ -242,7 +303,6 @@ class RouterosAPI
             echo $text . "\n";
         }
     }
-
 
     /**
      *

@@ -95,74 +95,7 @@
         @include('layouts.sidebar')
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-                <section class="content-header">
-        <h1 class="pull-left">Users</h1>
-        <h1 class="pull-right">
-           <a class="btn btn-primary pull-right" style="margin-top: -10px;margin-bottom: 5px" href="{!! route('users.create') !!}">Add New</a>
-        </h1>
-    </section>
-    <div class="content">
-        <div class="clearfix"></div>
-
-        @include('flash::message')
-
-        <div class="clearfix"></div>
-        <div class="box box-primary">
-            <div class="box-body">
-                    <table class="table table-responsive" id="users-table">
-    <thead>
-        <tr>
-            <th>Name</th>
-        <th>Email</th>
-        <th>Username</th>
-        <th>Password</th>
-        <th>Email Verified At</th>
-        <th>Phone</th>
-        <th>Celphone</th>
-        <th>Cpf Cnpj</th>
-        <th>User Type Id</th>
-        <th>Plan Id</th>
-        <th>Last Payment</th>
-        <th>Remember Token</th>
-            <th colspan="3">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach($users as $user)
-        <tr>
-            <td>{!! $user->name !!}</td>
-            <td>{!! $user->email !!}</td>
-            <td>{!! $user->username !!}</td>
-            <td>{!! $user->password !!}</td>
-            <td>{!! $user->email_verified_at !!}</td>
-            <td>{!! $user->phone !!}</td>
-            <td>{!! $user->celphone !!}</td>
-            <td>{!! $user->cpf_cnpj !!}</td>
-            <td>{!! $user->user_type_id !!}</td>
-            <td>{!! $user->plan_id !!}</td>
-            <td>{!! $user->last_payment !!}</td>
-            <td>{!! $user->remember_token !!}</td>
-            <td>
-                {!! Form::open(['route' => ['users.destroy', $user->id], 'method' => 'delete']) !!}
-                <div class='btn-group'>
-                    <a href="{!! route('users.show', [$user->id]) !!}" class='btn btn-default btn-xs'><i class="glyphicon glyphicon-eye-open"></i></a>
-                    <a href="{!! route('users.edit', [$user->id]) !!}" class='btn btn-default btn-xs'><i class="glyphicon glyphicon-edit"></i></a>
-                    {!! Form::button('<i class="glyphicon glyphicon-trash"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
-                </div>
-                {!! Form::close() !!}
-            </td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>
-            </div>
-        </div>
-        <div class="text-center">
-        
-        @include('adminlte-templates::common.paginate', ['records' => $users])
-
-        </div>
-    </div>
+            @yield('content')
         </div>
 
         <!-- Main Footer -->
