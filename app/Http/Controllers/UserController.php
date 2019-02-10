@@ -161,7 +161,7 @@ class UserController extends AppBaseController
     public function update($id, UpdateUserRequest $request)
     {
         if(auth()->user()->user_type_id > 2) {
-            return $this->edit($id);
+            return $this->edit(auth()->user()->id);
         }
 
         $user = $this->userRepository->findWithoutFail($id);
@@ -197,7 +197,7 @@ class UserController extends AppBaseController
     public function destroy($id)
     {
         if(auth()->user()->user_type_id > 2) {
-            return $this->edit($id);
+            return $this->edit(auth()->user()->id);
         }
 
         $user = $this->userRepository->findWithoutFail($id);
@@ -226,7 +226,7 @@ class UserController extends AppBaseController
        // $this->userRepository->loadDatabase();
 
         if(auth()->user()->user_type_id > 2) {
-            return $this->edit($id);
+            return $this->edit(auth()->user()->id);
         }
 
         $this->userRepository->pushCriteria(new RequestCriteria($request));
@@ -254,7 +254,7 @@ class UserController extends AppBaseController
     {
 
         if(auth()->user()->user_type_id > 2) {
-            return $this->edit($id);
+            return $this->edit(auth()->user()->id);
         }
 
         $user = $this->userRepository->findWithoutFail($id);
@@ -288,7 +288,7 @@ class UserController extends AppBaseController
     public function promisePayment($id)
     {
         if(auth()->user()->user_type_id > 2) {
-            return $this->edit($id);
+            return $this->edit(auth()->user()->id);
         }
 
         $user = $this->userRepository->findWithoutFail($id);
