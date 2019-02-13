@@ -57,7 +57,8 @@ class UserRepository extends BaseRepository
 
         if(3 == $attributes['user_type_id']) {
             $API = new RouterosAPI();
-            $API->connect('192.168.98.66', 'teste', '123456789');
+            $API->port = env('MK_PORT');
+            $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
 
             $API->comm('/ip/hotspot/user/add', [
                 'name' => $attributes['username'],
@@ -112,7 +113,6 @@ class UserRepository extends BaseRepository
             $attributes['general_status_id'] = 1;
         }
 
-        // Se a data de pagamento foi alterada, verifica se deve-se ativar o usuário
         if(!empty($attributes['plan_id'])) {
             $params['profile'] = Plan::find($attributes['plan_id'])->name;
         }
@@ -123,7 +123,8 @@ class UserRepository extends BaseRepository
             $params['.id'] = $user->id_hotspot;
             
             $API = new RouterosAPI();
-            $API->connect('192.168.98.66', 'teste', '123456789');            
+            $API->port = env('MK_PORT');
+            $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));            
             $API->comm("/ip/hotspot/user/set", $params);
 
             $hsUser = $API->comm("/ip/hotspot/user/print", ['?.id' => $user->id_hotspot]);
@@ -144,7 +145,8 @@ class UserRepository extends BaseRepository
         if(!empty($user) && $user->payment_promise < 2) {
 
             $API = new RouterosAPI();
-            $API->connect('192.168.98.66', 'teste', '123456789');
+            $API->port = env('MK_PORT');
+            $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
 
             $API->comm("/ip/hotspot/user/set", [
                 ".id" => $user->id_hotspot,
@@ -173,10 +175,11 @@ class UserRepository extends BaseRepository
     public function updatePaymentSituations() 
     { 
         $API = new RouterosAPI();
-        $API->connect('192.168.98.66', 'teste', '123456789');
+        $API->port = env('MK_PORT');
+        $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
 
         $pendingUsers = $this->model
-        //Retorna usários com pacotes vencidos em 3 prazos: o normal, uma promessa de pagamento de 3 dias e outra de 6 dias.
+        //Retorna usuários com pacotes vencidos em 3 prazos: o normal, uma promessa de pagamento de 3 dias e outra de 6 dias.
         ->where([
             'user_type_id' => 3,
             ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))],
@@ -224,7 +227,8 @@ class UserRepository extends BaseRepository
     public function loadDatabase()
     {
         $API = new RouterosAPI();
-        $API->connect('192.168.98.66', 'teste', '123456789');
+        $API->port = env('MK_PORT');
+        $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
 
         $profiles = $API->comm("/ip/hotspot/user/profile/print");
 

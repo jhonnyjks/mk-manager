@@ -40,7 +40,4 @@ Route::get('users/payments/update_situations', [
 
 Route::resource('users', 'UserController');
 
-
-Route::resource('plans', 'PlanController');
-
 Route::resource('plans', 'PlanController');

@@ -265,7 +265,13 @@ class UserController extends AppBaseController
             return redirect(route('users.paymentPanel'));
         }
 
-        $user = $this->userRepository->update(['last_payment' => date('Y-m-d'), 'payment_promise' => 0],$id);
+        // Adiciona 30 dias a partir da última data de pagamento.
+        // Necessário ser relativo à ultima data de pagamento por que temos a
+        //funcionalidade de promessa de pagamento que usa a mesma data como base.
+        $user = $this->userRepository->update([
+            'last_payment' => date('Y-m-d', strtotime($user->last_payment. ' + 30 days')),
+            'payment_promise' => 0
+        ], $id);
 
         if(empty($user)) {
             Flash::error('Não foi possível confirmar o pagamento desse usuário. Por favor, tente novamente.');
