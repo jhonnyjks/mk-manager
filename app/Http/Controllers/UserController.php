@@ -233,7 +233,7 @@ class UserController extends AppBaseController
         $users = $this->userRepository->makeModel()
         ->where([
             'user_type_id' => 3,
-            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))
+            ['last_payment', '<', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))
         ]])->orWhere([
             'user_type_id' => 3,
             ['last_payment', '=', null
@@ -266,10 +266,18 @@ class UserController extends AppBaseController
         }
 
         // Adiciona 30 dias a partir da última data de pagamento.
-        // Necessário ser relativo à ultima data de pagamento por que temos a
-        //funcionalidade de promessa de pagamento que usa a mesma data como base.
+        $lastPayment = '';
+        if($user->general_status_id == 1) {
+            // Necessário ser relativo à ultima data de pagamento por que temos a 
+            //funcionalidade de promessa de pagamento que usa a mesma data como base.
+            $lastPayment = date('Y-m-d', strtotime($user->last_payment. ' + 30 days'));
+        } else  {
+            // Se não estava ativo, utilizar a data atual menos os dias de promessa de pagamento.
+            $lastPayment = date('Y-m-d', strtotime(date('Y-m-d'). ' + '.( 30 - $user->payment_promise * 3).' days'));
+        }
+
         $user = $this->userRepository->update([
-            'last_payment' => date('Y-m-d', strtotime($user->last_payment. ' + 30 days')),
+            'last_payment' => $lastPayment,
             'payment_promise' => 0
         ], $id);
 

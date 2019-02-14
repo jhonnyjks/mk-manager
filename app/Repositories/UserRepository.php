@@ -111,6 +111,7 @@ class UserRepository extends BaseRepository
 
             $params['disabled'] = 'no';
             $attributes['general_status_id'] = 1;
+            $attributes['payment_promise'] = 0;
         }
 
         if(!empty($attributes['plan_id'])) {
@@ -167,7 +168,6 @@ class UserRepository extends BaseRepository
         $user->update(['payment_promise' => $user->payment_promise + 1, 'general_status_id' => 1]);
         return $user;
     }
-
 
     /**
      * Verifica os pacotes vencidos e desativa as contas. Deve ficar em Scheduller/Cron diário
@@ -263,7 +263,7 @@ class UserRepository extends BaseRepository
             'general_status_id' => ($user['disabled'] == 'true' ? 2 : 1)
 
             //Linha específica para meu padrão de definir último pag no comment. Ex.: Primeiro_acesso-jul/25/2017,-- Nao pagou o mes
-            //,'last_payment' => (strlen($user['comment']) > 26 ? date('Y-m-d', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d"))
+            ,'last_payment' => (!empty($user['comment']) && strlen($user['comment']) > 26 ? date('Y-m-d', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d"))
         ]);
     }
 }
