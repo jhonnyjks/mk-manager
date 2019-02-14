@@ -91,6 +91,7 @@ class UserRepository extends BaseRepository
 
             if(auth()->user()->user_type_id != 2) {
                 unset($attributes['general_status_id']);
+                unset($attributes['plan_id']);
             }
         }
 

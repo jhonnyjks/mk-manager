@@ -24,8 +24,8 @@
 
 <!-- Password Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('password', 'Senha:') !!}
-    {!! Form::password('password', ['class' => 'form-control']) !!}
+    {!! Form::label('password', 'Nova senha:') !!}
+    {!! Form::password('password', ['class' => 'form-control', 'placeholder' => 'Preencha para mudar de senha']) !!}
 </div>
 
 @if(1 == Auth::user()->user_type_id)
@@ -42,14 +42,16 @@
 </div>
 @endif
 
+@if(3 > Auth::user()->user_type_id)
 <!-- Plan Id Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('plan_id', 'Pacote:') !!}
     {!! Form::select('plan_id', $plans, null, ['class' => 'form-control']) !!}
 </div>
+@endif
 
 <!-- Submit Field -->
 <div class="form-group col-sm-12">
-    {!! Form::submit('Salvar', ['class' => 'btn btn-primary']) !!}
+    {!! Form::submit('Salvar Alterações', ['class' => 'btn btn-primary']) !!}
     <a href="{!! route('users.index') !!}" class="btn btn-default">Cancelar</a>
 </div>

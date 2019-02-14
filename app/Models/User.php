@@ -87,7 +87,8 @@ class User extends Model
         'name' => 'required|min:5|max:90',
         'email' => 'email|max:255',
         'username' => 'required|alpha_num|between:4,20|unique:users,username',
-        // 'password' => 'required|alpha_num|min:4|max:20',
+        //'password' => 'required|alpha_num|min:4|max:20',
+        'celphone' => 'required|numeric|between:900000000,99900000000',
         'user_type_id' => 'numeric|exists:user_types,id',
         'general_status_id' => 'numeric|exists:general_statuses,id',
         'plan_id' => 'numeric|exists:plans,id'

@@ -160,19 +160,27 @@ class UserController extends AppBaseController
      */
     public function update($id, UpdateUserRequest $request)
     {
-        if(auth()->user()->user_type_id > 2) {
-            return $this->edit(auth()->user()->id);
-        }
+        // if(auth()->user()->user_type_id > 2) {
+        //     return $this->edit(auth()->user()->id);
+        // }
 
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {
             Flash::error('Usuário não encontrado');
 
-            if(auth()->user()->user_type_id != 1) {
-                return redirect(route('users.paymentPanel'));
-            } else {
+            switch (auth()->user()->user_type_id) {
+                case 2:
+                return redirect(route('users.paymentPanel'));       
+                break;
+
+                case 3:
+                return $this->edit(auth()->user()->id);       
+                break;
+                
+                default:
                 return redirect(route('users.index'));
+                break;
             }
         }
 
@@ -180,10 +188,18 @@ class UserController extends AppBaseController
 
         Flash::success('Usuário alterado com sucesso!');
 
-        if(auth()->user()->user_type_id != 1) {
-            return redirect(route('users.paymentPanel'));
-        } else {
+        switch (auth()->user()->user_type_id) {
+            case 2:
+            return redirect(route('users.paymentPanel'));       
+            break;
+
+            case 3:
+            return $this->edit(auth()->user()->id);       
+            break;
+            
+            default:
             return redirect(route('users.index'));
+            break;
         }
     }
 

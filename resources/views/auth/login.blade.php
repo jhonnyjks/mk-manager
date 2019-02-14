@@ -35,22 +35,22 @@
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <a href="{{ url('/home') }}"><b>InfyOm </b>Generator</a>
+        <a href="{{ url('/home') }}"><b>Comunidade Net</a>
     </div>
 
     <!-- /.login-logo -->
     <div class="login-box-body">
-        <p class="login-box-msg">Entre para iniciar sua sessão</p>
+        <p class="login-box-msg">Entre para gerenciar sua conta</p>
 
         <form method="post" action="{{ url('/login') }}">
             {!! csrf_field() !!}
 
-            <div class="form-group has-feedback {{ $errors->has('email') ? ' has-error' : '' }}">
-                <input type="email" class="form-control" name="email" value="{{ old('email') }}" placeholder="Email">
+            <div class="form-group has-feedback {{ $errors->has('username') ? ' has-error' : '' }}">
+                <input type="text" class="form-control" name="username" value="{{ old('username') }}" placeholder="Login">
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-                @if ($errors->has('email'))
+                @if ($errors->has('username'))
                     <span class="help-block">
-                    <strong>{{ $errors->first('email') }}</strong>
+                    <strong>{{ $errors->first('username') }}</strong>
                 </span>
                 @endif
             </div>
@@ -67,9 +67,9 @@
             </div>
             <div class="row">
                 <div class="col-xs-8">
-                    <div class="checkbox icheck">
+                    <div class="checkbox icheck hide">
                         <label>
-                            <input type="checkbox" name="remember"> Lembrar sessão
+                            <input type="checkbox" name="remember" checked="checked"> Lembrar sessão
                         </label>
                     </div>
                 </div>
@@ -81,7 +81,7 @@
             </div>
         </form>
 
-        <a href="{{ url('/password/reset') }}">Esqueci minha senha</a><br>
+        <!-- <a href="{{ url('/password/reset') }}">Esqueci minha senha</a><br> -->
         <!--a href="{{ url('/register') }}" class="text-center">Não tem conta? Cadastrar</a -->
 
     </div>
