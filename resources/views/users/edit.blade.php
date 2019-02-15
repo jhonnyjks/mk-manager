@@ -7,7 +7,6 @@
         </h1>
    </section>
    <div class="content">
-       @include('adminlte-templates::common.errors')
        @include('flash::message')
        <div class="box box-primary">
         <p class="bg-warning" style="padding: 5px;">Por favor, mantenha o email e celular atualizados.</p>

@@ -88,7 +88,7 @@ class UserController extends AppBaseController
 
         $user = $this->userRepository->create($input);
 
-        Flash::success('Usuário adicionado com sucesso!');
+        Flash::success('Usuário '.$user->username.' adicionado com sucesso!');
 
         if(auth()->user()->user_type_id != 1) {
             return redirect(route('users.paymentPanel'));
@@ -249,14 +249,8 @@ class UserController extends AppBaseController
         }
 
         $this->userRepository->pushCriteria(new RequestCriteria($request));
-        $users = $this->userRepository->makeModel()
-        ->where([
-            'user_type_id' => 3,
-            ['last_payment', '<', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))
-        ]])->orWhere([
-            'user_type_id' => 3,
-            ['last_payment', '=', null
-        ]])->orderBy('username')->get();
+        $users = $this->userRepository->makeModel()->where(['user_type_id' => 3])
+        ->orderBy('general_status_id', 'DESC')->orderBy('payment_promise', 'DESC')->orderBy('username', 'ASC')->get();
 
         return view('users.payment_panel')
         ->with('users', $users);
@@ -292,7 +286,7 @@ class UserController extends AppBaseController
             $lastPayment = date('Y-m-d', strtotime($user->last_payment. ' + 30 days'));
         } else  {
             // Se não estava ativo, utilizar a data atual menos os dias de promessa de pagamento.
-            $lastPayment = date('Y-m-d', strtotime(date('Y-m-d'). ' + '.( 30 - $user->payment_promise * 3).' days'));
+            $lastPayment = date('Y-m-d', strtotime(date('Y-m-d'). ' - '.($user->payment_promise * 3).' days'));
         }
 
         $user = $this->userRepository->update([

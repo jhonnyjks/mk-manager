@@ -75,12 +75,10 @@ class UserRepository extends BaseRepository
             }
 
             $attributes['id_hotspot'] = $hsUser[0]['.id'];
-            $attributes['last_enabled_at'] = date('Y-m-d  H:i:s');
-            $attributes['user_id'] = auth()->user()->id;
         }
 
         $attributes['password'] = bcrypt($attributes['password']);
-        parent::create($attributes);
+        return parent::create($attributes);
     }
 
     public function update(array $attributes, $id) 
@@ -170,7 +168,17 @@ class UserRepository extends BaseRepository
             return [];
         }
 
-        $user->update(['payment_promise' => $user->payment_promise + 1, 'general_status_id' => 1]);
+        $user->update([
+            'payment_promise' => $user->payment_promise + 1,
+            'general_status_id' => 1,
+            'last_payment' => (
+                !empty($user->last_payment) ? 
+                $user->last_payment : 
+                date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s'). ' - 31 days'))
+            ),
+            'last_enabled_at' => date('Y-m-d H:i:s'),
+            'user_id' => auth()->user()->id
+        ]);
         return $user;
     }
 
