@@ -75,6 +75,8 @@ class UserRepository extends BaseRepository
             }
 
             $attributes['id_hotspot'] = $hsUser[0]['.id'];
+            $attributes['last_enabled_at'] = date('Y-m-d  H:i:s');
+            $attributes['user_id'] = auth()->user()->id;
         }
 
         $attributes['password'] = bcrypt($attributes['password']);
@@ -108,11 +110,13 @@ class UserRepository extends BaseRepository
 
         // Se a data de pagamento foi alterada, verifica se deve-se ativar o usuário
         if(!empty($attributes['last_payment']) && date_diff(
-            date_create($attributes['last_payment']), date_create(date("Y-m-d")))->days < 31) {
+            date_create($attributes['last_payment']), date_create(date("Y-m-d  H:i:s")))->days < 31) {
 
             $params['disabled'] = 'no';
             $attributes['general_status_id'] = 1;
             $attributes['payment_promise'] = 0;
+            $attributes['last_enabled_at'] = date('Y-m-d H:i:s');
+            $attributes['user_id'] = auth()->user()->id;
         }
 
         if(!empty($attributes['plan_id'])) {
@@ -183,17 +187,17 @@ class UserRepository extends BaseRepository
         //Retorna usuários com pacotes vencidos em 3 prazos: o normal, uma promessa de pagamento de 3 dias e outra de 6 dias.
         ->where([
             'user_type_id' => 3,
-            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))],
+            ['last_payment', '<=', date('Y-m-d  H:i:s', strtotime(date('Y-m-d  H:i:s'). ' - 30 days'))],
             'general_status_id' => 1,
             'payment_promise' => 0
         ])->orWhere([
             ['user_type_id', '=', 3],
-            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 33 days'))],
+            ['last_payment', '<=', date('Y-m-d  H:i:s', strtotime(date('Y-m-d  H:i:s'). ' - 33 days'))],
             ['general_status_id', '=', 1],
             ['payment_promise', '=', 1]
         ])->orWhere([
             ['user_type_id', '=', 3],
-            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 36 days'))],
+            ['last_payment', '<=', date('Y-m-d  H:i:s', strtotime(date('Y-m-d  H:i:s'). ' - 36 days'))],
             ['general_status_id', '=', 1],
             ['payment_promise', '=', 2]
         ])->get();
@@ -215,7 +219,7 @@ class UserRepository extends BaseRepository
 
         $rest = $this->model->where([
             'user_type_id' => 3,
-            ['last_payment', '<=', date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'))],
+            ['last_payment', '<=', date('Y-m-d  H:i:s', strtotime(date('Y-m-d  H:i:s'). ' - 30 days'))],
             'general_status_id' => 1
         ])->get();
 
@@ -264,7 +268,7 @@ class UserRepository extends BaseRepository
             'general_status_id' => ($user['disabled'] == 'true' ? 2 : 1)
 
             //Linha específica para meu padrão de definir último pag no comment. Ex.: Primeiro_acesso-jul/25/2017,-- Nao pagou o mes
-            ,'last_payment' => (!empty($user['comment']) && strlen($user['comment']) > 26 ? date('Y-m-d', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d"))
+            ,'last_payment' => (!empty($user['comment']) && strlen($user['comment']) > 26 ? date('Y-m-d  H:i:s', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d  H:i:s"))
         ]);
     }
 }

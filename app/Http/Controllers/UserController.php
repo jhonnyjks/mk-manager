@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Flash;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Response;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends AppBaseController
 {
@@ -60,7 +61,8 @@ class UserController extends AppBaseController
      */
     public function create()
     {
-        $plans = $this->planRepository->pluck('name', 'id')->toArray();
+        $plans = $this->planRepository->makeModel()->select(
+            DB::raw("CONCAT(name,' - R$ ',format(price,2,'de_DE')) AS name"),'id')->pluck('name', 'id')->toArray();
         array_unshift($plans, 'Selecione');
         $userTypes = $this->userTypeRepository->pluck('name', 'id')->toArray();
         array_unshift($userTypes, 'Selecione');
@@ -136,7 +138,8 @@ class UserController extends AppBaseController
             return redirect(route('users.index'));
         }
 
-        $plans = $this->planRepository->pluck('name', 'id')->toArray();
+        $plans = $this->planRepository->makeModel()->select(
+            DB::raw("CONCAT(name,' - R$ ',format(price,2,'de_DE')) AS name"),'id')->pluck('name', 'id')->toArray();
         array_unshift($plans, 'Selecione');
         $userTypes = $this->userTypeRepository->pluck('name', 'id')->toArray();
         array_unshift($userTypes, 'Selecione');

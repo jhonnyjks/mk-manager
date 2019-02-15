@@ -53,9 +53,11 @@ class User extends Model
         'plan_id',
         'last_payment',
         // 'remember_token',
-         'id_hotspot',
+        'id_hotspot',
         'general_status_id',
-        // 'payment_promise'
+        'last_enabled_at',
+        'user_id',
+        'payment_promise'
     ];
 
     /**
@@ -75,7 +77,9 @@ class User extends Model
         'remember_token' => 'string',
         'id_hotspot' => 'string',
         'general_status_id' => 'integer',
-        'payment_promise' => 'integer'
+        'payment_promise' => 'integer',
+        'user_id' => 'integer',
+        'last_enabled_at' => 'string'
     ];
 
     /**
