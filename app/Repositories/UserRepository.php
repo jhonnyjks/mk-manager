@@ -252,10 +252,7 @@ class UserRepository extends BaseRepository
             ]);
         }
 
-        $users = $API->comm("/ip/hotspot/user/print");/*, array(
-          //"count-only" => "",
-          "?profile" => "$prof",
-      ));*/
+        $users = $API->comm("/ip/hotspot/user/print");
 
       $plans = Plan::get()->pluck('id', 'name')->toArray();
 
@@ -264,12 +261,10 @@ class UserRepository extends BaseRepository
         //TODO: implementar trial user; Implementar gerenciamento de Devices(login by MAC)
         if($user['name'] == 'default-trial' or preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $user['name']) == 1) continue;
 
-        // if($user['name'] == 'dudu') dd($user['disabled'] == 'true' ? 2 : 1);
-
         User::updateOrCreate(['id_hotspot' => $user['.id']], [
-            'name' => $user['name'],
+            //'name' => $user['name'],
             'username' => $user['name'],
-            'email' => $user['name'].rand(10,99).'@login.net',
+           // 'email' => $user['name'].rand(10,99).'@login.net',
             'user_type_id' => 3,
             'password' => bcrypt($user['password']),
             'plan_id' => $plans[$user['profile']],

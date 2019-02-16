@@ -32,8 +32,13 @@ Route::get('users/payment_panel/promise/{id}', [
 	'uses' => 'UserController@promisePayment'
 ]);
 
+Route::get('users/load_hotspot', [
+	'as' => 'users.loadHotspotData',
+	'uses' => 'UserController@loadHotspotData'
+]);
+
 //Verifica os pacotes vencidos e desativa as contas. Deve ficar em Scheduller/Cron diário
-Route::get('users/payments/update_situations', [
+Route::get('users/payments/update_situations/{token}', [
 	'as' => 'users.updatePaymentSituations',
 	'uses' => 'UserController@updatePaymentSituations'
 ]);

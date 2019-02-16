@@ -28,7 +28,7 @@ class UserController extends AppBaseController
         UserTypeRepository $userTypeRepo,
         GeneralStatusRepository $generalStatusRepo)
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except('updatePaymentSituations');
         $this->userRepository = $userRepo;
         $this->planRepository = $planRepo;
         $this->userTypeRepository = $userTypeRepo;
@@ -242,8 +242,6 @@ class UserController extends AppBaseController
      */
     public function paymentPanel(Request $request)
     {
-       // $this->userRepository->loadDatabase();
-
         if(auth()->user()->user_type_id > 2) {
             return $this->edit(auth()->user()->id);
         }
@@ -265,7 +263,6 @@ class UserController extends AppBaseController
      */
     public function confirmPayment($id)
     {
-
         if(auth()->user()->user_type_id > 2) {
             return $this->edit(auth()->user()->id);
         }
@@ -339,8 +336,27 @@ class UserController extends AppBaseController
         return redirect(route('users.paymentPanel'));
     }
 
-    public function updatePaymentSituations()
+    /**
+     * Atualiza asituação do pagamento de todos os usuários, desativando quem estiver vencido. 
+     * Deve ser executado uma vez por dia.
+     * @param  int $id
+     *
+     * @return Response
+     */ 
+    public function updatePaymentSituations($token)
     {
-        $this->userRepository->updatePaymentSituations();
+        //Validação temporária utilizando a APP_KEY para garantir que só com autorização interna seja
+        // possível executar essa funcionalidade. Necessário informar pelo menos 14 dígitos da APP_KEY
+        if(strlen($token) > 14 && strpos(env('APP_KEY'), $token) > 0) {
+            $this->userRepository->updatePaymentSituations();
+        }
+    }
+
+    // Deve ser executado apenas UMA VEZ. Carrega todos os dados necessários do mikrotik pro BD do sistema.
+    public function loadHotspotData()
+    {
+        if(1 == auth()->user()->user_type_id) {
+            $this->userRepository->loadDatabase();
+        }
     }
 }
