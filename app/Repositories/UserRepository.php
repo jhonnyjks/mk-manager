@@ -170,7 +170,7 @@ class UserRepository extends BaseRepository
 
         $lastPayment = $user->last_payment;
 
-        if(empty($lastPayment) || date('Ymd', strtotime($lastPayment)) < date("Ymd") ) {
+        if(empty($lastPayment) || date('Ymd', strtotime($lastPayment)) < date("Ymd", strtotime(date('Y-m-d'). ' - 30 days')) ) {
             $lastPayment = date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'));
         }
 

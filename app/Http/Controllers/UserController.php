@@ -44,7 +44,7 @@ class UserController extends AppBaseController
     public function index(Request $request)
     {
         if(auth()->user()->user_type_id != 1) {
-            return redirect(route('users.paymentPanel'));
+            return $this->paymentPanel();
         }
 
         $this->userRepository->pushCriteria(new RequestCriteria($request));
@@ -93,7 +93,7 @@ class UserController extends AppBaseController
         Flash::success('Usuário '.$user->username.' adicionado com sucesso!');
 
         if(auth()->user()->user_type_id != 1) {
-            return redirect(route('users.paymentPanel'));
+            return $this->paymentPanel();
         } else {
             return redirect(route('users.index'));
         }
@@ -167,10 +167,6 @@ class UserController extends AppBaseController
      */
     public function update($id, UpdateUserRequest $request)
     {
-        // if(auth()->user()->user_type_id > 2) {
-        //     return $this->edit(auth()->user()->id);
-        // }
-
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {
@@ -178,7 +174,7 @@ class UserController extends AppBaseController
 
             switch (auth()->user()->user_type_id) {
                 case 2:
-                return redirect(route('users.paymentPanel'));       
+                return $this->paymentPanel();      
                 break;
 
                 case 3:
@@ -197,7 +193,7 @@ class UserController extends AppBaseController
 
         switch (auth()->user()->user_type_id) {
             case 2:
-            return redirect(route('users.paymentPanel'));       
+            return $this->paymentPanel();      
             break;
 
             case 3:
@@ -242,15 +238,14 @@ class UserController extends AppBaseController
      * Painel de caixa: pagamento e desbloqueio de conta.
      *
      * @param Request $request
-     * @return Response
+     * @return ResponseSe tem 'Tosco', foi o canadense 
      */
-    public function paymentPanel(Request $request)
+    public function paymentPanel()
     {
         if(auth()->user()->user_type_id > 2) {
             return $this->edit(auth()->user()->id);
         }
 
-        $this->userRepository->pushCriteria(new RequestCriteria($request));
         $users = $this->userRepository->makeModel()->where(['user_type_id' => 3])
         ->orderBy('general_status_id', 'DESC')->orderBy('payment_promise', 'DESC')->orderBy('username', 'ASC')->get();
 
@@ -276,7 +271,7 @@ class UserController extends AppBaseController
         if (empty($user)) {
             Flash::error('Usuário não encontrado.');
 
-            return redirect(route('users.paymentPanel'));
+            return $this->paymentPanel();
         }
 
         // Adiciona 30 dias a partir da última data de pagamento.
@@ -298,12 +293,12 @@ class UserController extends AppBaseController
         if(empty($user)) {
             Flash::error('Não foi possível confirmar o pagamento desse usuário. Por favor, tente novamente.');
 
-            return redirect(route('users.paymentPanel'));
+            return $this->paymentPanel();
         }
 
         Flash::success('Pagamento do usuário <b>'.$user->username.'</b> confirmado!');
 
-        return redirect(route('users.paymentPanel'));
+        return $this->paymentPanel();
     }
 
     /**
@@ -323,8 +318,8 @@ class UserController extends AppBaseController
 
         if (empty($user)) {
             Flash::error('Usuário não encontrado.');
-
-            return redirect(route('users.paymentPanel'));
+            
+            return $this->paymentPanel();
         }
 
         $user = $this->userRepository->promisePayment($id);
@@ -337,7 +332,7 @@ class UserController extends AppBaseController
 
         Flash::success('Promessa de pagamento do usuário <b>'.$user->username.'</b> confirmada!');
 
-        return redirect(route('users.paymentPanel'));
+        return $this->paymentPanel();
     }
 
     /**
