@@ -168,14 +168,16 @@ class UserRepository extends BaseRepository
             return [];
         }
 
+        $lastPayment = $user->last_payment;
+
+        if(empty($lastPayment) || date('Ymd', strtotime($lastPayment)) < date("Ymd") ) {
+            $lastPayment = date('Y-m-d', strtotime(date('Y-m-d'). ' - 30 days'));
+        }
+
         $user->update([
             'payment_promise' => $user->payment_promise + 1,
             'general_status_id' => 1,
-            'last_payment' => (
-                !empty($user->last_payment) ? 
-                $user->last_payment : 
-                date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s'). ' - 31 days'))
-            ),
+            'last_payment' => $lastPayment,
             'last_enabled_at' => date('Y-m-d H:i:s'),
             'user_id' => auth()->user()->id
         ]);
@@ -254,27 +256,27 @@ class UserRepository extends BaseRepository
 
         $users = $API->comm("/ip/hotspot/user/print");
 
-      $plans = Plan::get()->pluck('id', 'name')->toArray();
+        $plans = Plan::get()->pluck('id', 'name')->toArray();
 
-      foreach ($users as $user) {
+        foreach ($users as $user) {
 
         //TODO: implementar trial user; Implementar gerenciamento de Devices(login by MAC)
-        if($user['name'] == 'default-trial' or preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $user['name']) == 1) continue;
+            if($user['name'] == 'default-trial' or preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $user['name']) == 1) continue;
 
-        User::updateOrCreate(['id_hotspot' => $user['.id']], [
+            User::updateOrCreate(['id_hotspot' => $user['.id']], [
             //'name' => $user['name'],
-            'username' => $user['name'],
+                'username' => $user['name'],
            // 'email' => $user['name'].rand(10,99).'@login.net',
-            'user_type_id' => 3,
-            'password' => bcrypt($user['password']),
-            'plan_id' => $plans[$user['profile']],
-            'general_status_id' => ($user['disabled'] == 'true' ? 2 : 1)
+                'user_type_id' => 3,
+                'password' => bcrypt($user['password']),
+                'plan_id' => $plans[$user['profile']],
+                'general_status_id' => ($user['disabled'] == 'true' ? 2 : 1)
 
             //Linha específica para meu padrão de definir último pag no comment. Ex.: Primeiro_acesso-jul/25/2017,-- Nao pagou o mes
-            ,'last_payment' => (!empty($user['comment']) && strlen($user['comment']) > 26 ? date('Y-m-d  H:i:s', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d  H:i:s"))
-        ]);
+                ,'last_payment' => (!empty($user['comment']) && strlen($user['comment']) > 26 ? date('Y-m-d  H:i:s', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d  H:i:s"))
+            ]);
+        }
     }
-}
 }
 
 class RouterosAPI
