@@ -1,6 +1,6 @@
 <!-- Name Field -->
 <div class="form-group col-sm-6 {{ $errors->has('name') ? 'has-error' : '' }}">
-    {!! Form::label('name', 'Nome:') !!}
+    {!! Form::label('name', 'Nome do titular:') !!}
     {!! Form::text('name', null, ['class' => 'form-control']) !!}
 
     @if ($errors->has('name'))

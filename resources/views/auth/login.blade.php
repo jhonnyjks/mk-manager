@@ -46,7 +46,7 @@
             {!! csrf_field() !!}
 
             <div class="form-group has-feedback {{ $errors->has('username') ? ' has-error' : '' }}">
-                <input type="text" class="form-control" name="username" value="{{ old('username') }}" placeholder="Login">
+                <input type="text" class="form-control" name="username" value="{{ old('username') }}" placeholder="Usuário">
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
                 @if ($errors->has('username'))
                     <span class="help-block">
@@ -80,9 +80,6 @@
                 <!-- /.col -->
             </div>
         </form>
-
-        <!-- <a href="{{ url('/password/reset') }}">Esqueci minha senha</a><br> -->
-        <!--a href="{{ url('/register') }}" class="text-center">Não tem conta? Cadastrar</a -->
 
     </div>
     <!-- /.login-box-body -->
