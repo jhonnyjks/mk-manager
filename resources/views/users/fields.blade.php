@@ -38,7 +38,7 @@
 <!-- Plan Id Field -->
 <div class="form-group col-sm-6 {{ $errors->has('plan_id') ? 'has-error' : '' }}">
     {!! Form::label('plan_id', 'Pacote:') !!}
-    {!! Form::select('plan_id', $plans, null, ['class' => 'form-control']) !!}
+    {!! Form::select('plan_id', $plans, !empty($user) ? $user->plan_id : 0, ['class' => 'form-control']) !!}
 
     @if ($errors->has('plan_id'))
     <span class="help-block">

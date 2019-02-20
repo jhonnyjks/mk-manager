@@ -63,12 +63,14 @@ class UserController extends AppBaseController
     {
         $plans = $this->planRepository->makeModel()->select(
             DB::raw("CONCAT(name,' - R$ ',format(price,2,'de_DE')) AS name"),'id')->pluck('name', 'id')->toArray();
-        array_unshift($plans, 'Selecione');
-        $userTypes = $this->userTypeRepository->pluck('name', 'id')->toArray();
-        array_unshift($userTypes, 'Selecione');
-        $generalStatuses = $this->generalStatusRepository->pluck('name', 'id')->toArray();
-        array_unshift($generalStatuses, 'Selecione');
+        $plans[0] = 'Selecione';
 
+        $userTypes = $this->userTypeRepository->pluck('name', 'id')->toArray();
+        $userTypes[0] = 'Selecione';
+        
+        $generalStatuses = $this->generalStatusRepository->pluck('name', 'id')->toArray();
+        $generalStatuses[0] = 'Selecione';
+        
         return view('users.create')
         ->with('plans', $plans)
         ->with('userTypes', $userTypes)
@@ -140,11 +142,13 @@ class UserController extends AppBaseController
 
         $plans = $this->planRepository->makeModel()->select(
             DB::raw("CONCAT(name,' - R$ ',format(price,2,'de_DE')) AS name"),'id')->pluck('name', 'id')->toArray();
-        array_unshift($plans, 'Selecione');
+        $plans[0] = 'Selecione';
+
         $userTypes = $this->userTypeRepository->pluck('name', 'id')->toArray();
-        array_unshift($userTypes, 'Selecione');
+        $userTypes[0] = 'Selecione';
+        
         $generalStatuses = $this->generalStatusRepository->pluck('name', 'id')->toArray();
-        array_unshift($generalStatuses, 'Selecione');
+        $generalStatuses[0] = 'Selecione';
 
         return view('users.edit')
         ->with('user', $user)
