@@ -121,6 +121,10 @@ class UserRepository extends BaseRepository
             $params['profile'] = Plan::find($attributes['plan_id'])->name;
         }
 
+        if(!empty($attributes['username'])) {
+            $params['name'] = $attributes['username'];
+        }
+
         if(!empty($params)) {
             $user = User::find($id);
 
