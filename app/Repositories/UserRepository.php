@@ -162,8 +162,8 @@ class UserRepository extends BaseRepository
             ]);
 
             $hsUser = $API->comm("/ip/hotspot/user/print", [
-              "?.id" => $user->id_hotspot
-          ]);
+                "?.id" => $user->id_hotspot
+            ]);
 
             if(empty($hsUser)) {
                 return [];
@@ -197,8 +197,8 @@ class UserRepository extends BaseRepository
         $API->port = env('MK_PORT');
         $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
 
-        $pendingUsers = $this->model
         //Retorna usuários com pacotes vencidos em 3 prazos: o normal, uma promessa de pagamento de 3 dias e outra de 6 dias.
+        $pendingUsers = $this->model
         ->where([
             'user_type_id' => 3,
             ['last_payment', '<=', date('Y-m-d  H:i:s', strtotime(date('Y-m-d  H:i:s'). ' - 30 days'))],
@@ -208,12 +208,7 @@ class UserRepository extends BaseRepository
             ['user_type_id', '=', 3],
             ['last_payment', '<=', date('Y-m-d  H:i:s', strtotime(date('Y-m-d  H:i:s'). ' - 33 days'))],
             ['general_status_id', '=', 1],
-            ['payment_promise', '=', 1]
-        ])->orWhere([
-            ['user_type_id', '=', 3],
-            ['last_payment', '<=', date('Y-m-d  H:i:s', strtotime(date('Y-m-d  H:i:s'). ' - 36 days'))],
-            ['general_status_id', '=', 1],
-            ['payment_promise', '=', 2]
+            ['payment_promise', '>', 0]
         ])->get();
 
         foreach ($pendingUsers as $user) {
@@ -270,7 +265,7 @@ class UserRepository extends BaseRepository
             User::updateOrCreate(['id_hotspot' => $user['.id']], [
             //'name' => $user['name'],
                 'username' => $user['name'],
-           // 'email' => $user['name'].rand(10,99).'@login.net',
+            // 'email' => $user['name'].rand(10,99).'@login.net',
                 'user_type_id' => 3,
                 'password' => bcrypt($user['password']),
                 'plan_id' => $plans[$user['profile']],
@@ -316,7 +311,7 @@ class UserRepository extends BaseRepository
             $userActives = $API->comm("/ip/hotspot/active/print", array(
                 "?user" => $user->username
             ));
-            dd($userActives);
+
             if(!empty($userActives)) {
                 return [];
             }

@@ -23,10 +23,6 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css">
 
-    <!-- Ionicons -->                </ul>
-
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-
     @yield('css')
 </head>
 
@@ -43,12 +39,12 @@
 
             <!-- Header Navbar -->
             <nav class="navbar navbar-static-top" role="navigation">
-                @if(Auth::user()->user_type_id < 2)
+
                 <!-- Sidebar toggle button-->
-                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                    <span class="sr-only">Toggle navigation</span>
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Menu Principal</span>
                 </a>
-                @endif
+
                 <!-- Navbar Right Menu -->
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
@@ -94,10 +90,8 @@
             </nav>
         </header>
 
-        @if(Auth::user()->user_type_id < 2)
         <!-- Left side column. contains the logo and sidebar -->
         @include('layouts.sidebar')
-        @endif
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper" style="{!! (Auth::user()->user_type_id > 1) ? 'margin-left: 0px;' : ''!!}">
@@ -157,7 +151,6 @@
     </div>
     @endif
 
-    <!-- jQuery 3.1.1 -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 

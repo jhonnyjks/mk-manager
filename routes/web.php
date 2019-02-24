@@ -37,6 +37,11 @@ Route::get('users/load_hotspot', [
 	'uses' => 'UserController@loadHotspotData'
 ]);
 
+Route::get('users/account', [
+	'as' => 'users.account',
+	'uses' => 'UserController@account'
+]);
+
 Route::get('users/reset_sessions/{id}', [
 	'as' => 'users.resetSessions',
 	'uses' => 'UserController@resetSessions'

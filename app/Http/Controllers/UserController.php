@@ -178,7 +178,7 @@ class UserController extends AppBaseController
                 break;
 
                 case 3:
-                return $this->edit(auth()->user()->id);       
+                return $this->account();       
                 break;
                 
                 default:
@@ -197,7 +197,7 @@ class UserController extends AppBaseController
             break;
 
             case 3:
-            return $this->edit(auth()->user()->id);       
+            return $this->account();       
             break;
             
             default:
@@ -216,7 +216,7 @@ class UserController extends AppBaseController
     public function destroy($id)
     {
         if(auth()->user()->user_type_id > 2) {
-            return $this->edit(auth()->user()->id);
+            return $this->account();
         }
 
         $user = $this->userRepository->findWithoutFail($id);
@@ -243,7 +243,7 @@ class UserController extends AppBaseController
     public function paymentPanel()
     {
         if(auth()->user()->user_type_id > 2) {
-            return $this->edit(auth()->user()->id);
+            return $this->account();
         }
 
         $users = $this->userRepository->makeModel()->where(['user_type_id' => 3])
@@ -263,7 +263,7 @@ class UserController extends AppBaseController
     public function confirmPayment($id)
     {
         if(auth()->user()->user_type_id > 2) {
-            return $this->edit(auth()->user()->id);
+            return $this->account();
         }
 
         $user = $this->userRepository->findWithoutFail($id);
@@ -311,28 +311,51 @@ class UserController extends AppBaseController
     public function promisePayment($id)
     {
         if(auth()->user()->user_type_id > 2) {
-            return $this->edit(auth()->user()->id);
+            $id = auth()->user()->id;
         }
 
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {
-            Flash::error('Usuário não encontrado.');
-            
-            return $this->paymentPanel();
+            Flash::error('Usuário não encontrado');
+
+            switch (auth()->user()->user_type_id) {
+                case 2:
+                return $this->paymentPanel();      
+                break;
+
+                case 3:
+                return $this->account();       
+                break;
+                
+                default:
+                return redirect(route('users.index'));
+                break;
+            }
         }
 
         $user = $this->userRepository->promisePayment($id);
 
-        if(empty($user)) {
+        if (empty($user)) {
             Flash::error('Não foi possível registrar a promessa de pagamento do usuário. Por favor, tente novamente.');
-
-            return redirect(route('users.paymentPanel'));
+        } else {
+            Flash::success('Promessa de pagamento do usuário <b>'.$user->username.'</b> confirmada!');
         }
 
-        Flash::success('Promessa de pagamento do usuário <b>'.$user->username.'</b> confirmada!');
+        switch (auth()->user()->user_type_id) {
+            case 2:
+            return $this->paymentPanel();      
+            break;
 
-        return $this->paymentPanel();
+            case 3:
+            return redirect(route('users.account'));       
+            break;
+
+            default:
+            return redirect(route('users.index'));
+            break;
+        }
+
     }
 
     /**
@@ -377,11 +400,21 @@ class UserController extends AppBaseController
         if(empty($user)) {
             Flash::error('Não foi possível fechar as sessões. Por favor, tente novamente.');
 
-            return $this->edit($id);
+            return redirect(route('users.account'));
         }
 
         Flash::success('Sessões fechadas com sucesso! Você terá que efetuar login novamente em todos os dispositivos!');
 
-        return $this->edit($id);
+        return redirect(route('users.account'));
+    }
+
+    /**
+     * Home do usuário. Contém informações gerais da conta.
+     *
+     * @return Response
+     */
+    public function account()
+    {        
+        return view('users.account');
     }
 }

@@ -16,7 +16,23 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'email',
+        'username',
+        'password',
+        // 'email_verified_at',
+        'phone',
+        'celphone',
+        'cpf_cnpj',
+        'user_type_id',
+        'plan_id',
+        'last_payment',
+        // 'remember_token',
+        'id_hotspot',
+        'general_status_id',
+        'last_enabled_at',
+        'user_id',
+        'payment_promise'
     ];
 
     /**
@@ -27,4 +43,28 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     **/
+    public function plan()
+    {
+        return $this->belongsTo(\App\Models\Plan::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     **/
+    public function userType()
+    {
+        return $this->belongsTo(\App\Models\UserType::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     **/
+    public function generalStatus()
+    {
+        return $this->belongsTo(\App\Models\GeneralStatus::class);
+    }
 }

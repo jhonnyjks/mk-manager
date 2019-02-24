@@ -23,9 +23,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if(auth()->user()->user_type_id != 1) {
+        if(auth()->user()->user_type_id == 2) {
             return redirect(route('users.paymentPanel'));
+        } else if(auth()->user()->user_type_id > 2) {
+            return redirect(route('users.account'));
         }
+        
         return view('home');
     }
 }
