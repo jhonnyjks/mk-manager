@@ -50,7 +50,7 @@ class UserRepository extends BaseRepository
     public function create(array $attributes) 
     {
         // Segurança: se não for admin, só pode add usuario membro (type=3) 
-        if(auth()->guest() || (!auth()->guest() && auth()->user()->user_type_id != 1)) {
+        if(auth()->guest() || auth()->user()->user_type_id != 1) {
             $attributes['general_status_id'] = 2;
             $attributes['user_type_id'] = 3;
         }
@@ -280,6 +280,51 @@ class UserRepository extends BaseRepository
                 ,'last_payment' => (!empty($user['comment']) && strlen($user['comment']) > 26 ? date('Y-m-d  H:i:s', strtotime(str_replace('/', '-', substr($user['comment'], 16, 11)))) : date("Y-m-d  H:i:s"))
             ]);
         }
+    }
+
+    public function resetSessions($id) 
+    { 
+
+        $user = User::find($id);
+
+        if(!empty($user)) {
+
+            $API = new RouterosAPI();
+            $API->port = env('MK_PORT');
+            $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
+
+            $userActives = $API->comm("/ip/hotspot/active/print", array(
+                "?user" => $user->username,
+            ));
+
+            foreach ($userActives as $userActive) {
+                $API->comm("/ip/hotspot/active/remove", array(
+                    ".id" => $userActive['.id']
+                ));
+            }
+
+            $userCookies = $API->comm("/ip/hotspot/active/print", array(
+                "?user" => $user->username,
+            ));
+
+            foreach ($userCookies as $userCookie) {
+                $API->comm("/ip/hotspot/active/remove", array(
+                    ".id" => $userCookie['.id']
+                ));
+            }
+
+            $userActives = $API->comm("/ip/hotspot/active/print", array(
+                "?user" => $user->username
+            ));
+            dd($userActives);
+            if(!empty($userActives)) {
+                return [];
+            }
+        } else {
+            return [];
+        }
+
+        return $user;
     }
 }
 

@@ -37,6 +37,11 @@ Route::get('users/load_hotspot', [
 	'uses' => 'UserController@loadHotspotData'
 ]);
 
+Route::get('users/reset_sessions/{id}', [
+	'as' => 'users.resetSessions',
+	'uses' => 'UserController@resetSessions'
+]);
+
 //Verifica os pacotes vencidos e desativa as contas. Deve ficar em Scheduller/Cron diário
 Route::get('users/payments/update_situations/{token}', [
 	'as' => 'users.updatePaymentSituations',

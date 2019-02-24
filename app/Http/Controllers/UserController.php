@@ -358,4 +358,30 @@ class UserController extends AppBaseController
             $this->userRepository->loadDatabase();
         }
     }
+
+    /**
+     * Remove todas as sessões do usuário informado
+     *
+     * @param  int $id
+     *
+     * @return Response
+     */
+    public function resetSessions($id)
+    {
+        if(auth()->user()->user_type_id > 2) {
+            $id = auth()->user()->id;
+        }
+
+        $user = $this->userRepository->resetSessions($id);
+
+        if(empty($user)) {
+            Flash::error('Não foi possível fechar as sessões. Por favor, tente novamente.');
+
+            return $this->edit($id);
+        }
+
+        Flash::success('Sessões fechadas com sucesso! Você terá que efetuar login novamente em todos os dispositivos!');
+
+        return $this->edit($id);
+    }
 }
