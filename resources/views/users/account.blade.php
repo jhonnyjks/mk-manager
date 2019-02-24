@@ -11,7 +11,7 @@
 		@include('flash::message')
        <div class="box box-primary">
        	@if(empty(Auth::user()->celphone) || empty(Auth::user()->email))
-       		<p class="bg-warning" style="padding: 5px;">Por favor, mantenha o email e celular atualizados para receber notificações importantes!</p>
+       		<p class="bg-warning" style="padding: 5px;">Por favor, mantenha o email e celular atualizados para receber notificações importantes! <a href="{!! route('users.edit', [Auth::user()->id]) !!}">Clique aqui!</a></p>
 		@endif
           	<div class="box-body">
               	<div class="row">
