@@ -19,7 +19,7 @@
 				    	{!! Form::label('name', 'STATUS: '.strtoupper(Auth::user()->generalStatus->name)) !!}
 					</div>
 
-					@if(date('Ymd', strtotime(Auth::user()->last_payment)) < date("Ymd", strtotime(date('Y-m-d'). ' - 30 days')))
+					@if(date('Ymd', strtotime(Auth::user()->last_payment)) < date("Ymd", strtotime(date('Y-m-d'). ' - 29 days')))
                		<div class="col-xs-12 col-sm-6 col-lg-4 text-danger">
            				{!! Form::label('name', 'PAGAMENTO: PENDENTE') !!}
 				    	@if(Auth::user()->general_status_id == 2)
