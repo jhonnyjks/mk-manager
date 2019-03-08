@@ -71,7 +71,10 @@
                 <a class="btn btn-{!! $user->payment_promise < 1 ? 'warning' : 'danger' !!} pull-left" style="font-size: 0.8em;" href="{!! route('users.promisePayment', [$user->id]) !!}" onclick="return confirm('Confirmar PROMESSA DE PAGAMENTO do usuário {!! $user->username !!}?')">ADIAR</a>
                 @endif
                 
-                <a class="btn btn-success pull-right" style="font-size: 0.8em;" href="{!! route('users.confirmPayment', [$user->id]) !!}" onclick="return confirm('Confirmar PAGAMENTO do usuário {!! $user->username !!}?')">PAGO</a>
+                {!! Form::open(['route' => ['users.confirmPayment'], 'method' => 'post']) !!}
+                    {!! Form::hidden('id', $user->id, []) !!}
+                    {!! Form::button('PAGO', ['type' => 'submit', 'class' => 'btn btn-success pull-right', 'style' => 'font-size: 0.8em;', 'onclick' => "return confirm('Confirmar PAGAMENTO do usuário " . $user->username . "?')"]) !!}
+                {!! Form::close() !!}
             </td>
         </tr>
     @endforeach

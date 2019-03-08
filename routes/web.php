@@ -22,7 +22,7 @@ Route::get('users/payment_panel', [
 	'uses' => 'UserController@paymentPanel'
 ]);
 
-Route::get('users/payment_panel/confirm/{id}', [
+Route::post('users/payment_panel/confirm', [
 	'as' => 'users.confirmPayment',
 	'uses' => 'UserController@confirmPayment'
 ]);

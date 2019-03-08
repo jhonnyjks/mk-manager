@@ -260,13 +260,17 @@ class UserController extends AppBaseController
      *
      * @return Response
      */
-    public function confirmPayment($id)
+    public function confirmPayment(Request $request)
     {
+        if(empty($request->id)) {
+            return $this->paymentPanel();
+        }
+        
         if(auth()->user()->user_type_id > 2) {
             return $this->account();
         }
 
-        $user = $this->userRepository->findWithoutFail($id);
+        $user = $this->userRepository->findWithoutFail($request->id);
 
         if (empty($user)) {
             Flash::error('Usuário não encontrado.');
@@ -288,17 +292,17 @@ class UserController extends AppBaseController
         $user = $this->userRepository->update([
             'last_payment' => $lastPayment,
             'payment_promise' => 0
-        ], $id);
+        ], $request->id);
 
         if(empty($user)) {
             Flash::error('Não foi possível confirmar o pagamento desse usuário. Por favor, tente novamente.');
 
-            return $this->paymentPanel();
+            return redirect(route('users.paymentPanel'));
         }
 
         Flash::success('Pagamento do usuário <b>'.$user->username.'</b> confirmado!');
 
-        return $this->paymentPanel();
+        return redirect(route('users.paymentPanel'));
     }
 
     /**
