@@ -55,7 +55,7 @@
         <th>Plano</th>
 <!--         <th>Valor</th> -->
         <th>Vencimento</th>
-            <th colspan="3"></th>
+        <th style="min-width: 160px;"></th>
         </tr>
     </thead>
     <tbody>
