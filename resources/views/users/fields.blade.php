@@ -51,7 +51,7 @@
 <!-- Username Field -->
 <div class="form-group col-sm-6 {{ $errors->has('username') ? 'has-error' : '' }}">
     {!! Form::label('username', 'Usuário:') !!}
-    {!! Form::text('username', null, ['class' => 'form-control', 'max-length' => 20, 'disabled' => 'disabled']) !!}
+    {!! Form::text('username', null, ['class' => 'form-control', 'max-length' => 20]) !!}
 
     @if ($errors->has('username'))
     <span class="help-block">

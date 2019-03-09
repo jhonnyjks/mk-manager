@@ -90,11 +90,13 @@
             </nav>
         </header>
 
-        <!-- Left side column. contains the logo and sidebar -->
-        @include('layouts.sidebar')
+        @if(Auth::user()->user_type_id != 2 )
+            <!-- Left side column. contains the logo and sidebar -->
+            @include('layouts.sidebar')
+        @endif
 
         <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper" style="{!! (Auth::user()->user_type_id > 1) ? 'margin-left: 0px;' : ''!!}">
+        <div class="content-wrapper" style="{!! (Auth::user()->user_type_id == 2) ? 'margin-left: 0px;' : ''!!}">
             @yield('content')
         </div>
 
