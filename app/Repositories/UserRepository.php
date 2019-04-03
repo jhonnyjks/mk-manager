@@ -117,6 +117,14 @@ class UserRepository extends BaseRepository
             $attributes['user_id'] = auth()->user()->id;
         }
 
+        if(!empty($attributes['general_status_id'])) {
+            if($attributes['general_status_id'] == 1) {
+                $params['disabled'] = 'no';    
+            } else {
+                $params['disabled'] = 'yes';
+            }
+        }
+
         if(!empty($attributes['plan_id'])) {
             $params['profile'] = Plan::find($attributes['plan_id'])->name;
         }
