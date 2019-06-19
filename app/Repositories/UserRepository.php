@@ -8,6 +8,7 @@ use InfyOm\Generator\Common\BaseRepository;
 use RouterOS\Config;
 use RouterOS\Client;
 use RouterOS\Query;
+use League\Flysystem\Exception;
 
 /**
  * Class UserRepository
@@ -328,6 +329,28 @@ class UserRepository extends BaseRepository
         }
 
         return $user;
+    }
+
+    /**
+     * Atualiza os IDs dos usuários de acordo com o que está no mikrotik atual.
+     * Rotina necessária quando o mk é substituido.
+     */
+    public function updateHotspotIds()
+    {
+        $API = new RouterosAPI();
+            $API->port = env('MK_PORT');
+            $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
+
+            $users = $API->comm("/ip/hotspot/user/print");
+
+            foreach ($users as $hUser) {
+                try {
+                    $user = User::where(['username' => $hUser['name']])->update(['id_hotspot' => $hUser['.id']]);
+                    if(!empty($user)) echo $user->username.', ';
+                } catch(Exception $e) {
+                    echo '['.$hUser['name'].'], ';    
+                }
+            }
     }
 }
 
@@ -947,6 +970,3 @@ function randNULC($length) {
     }
     return $result;
 }
-
-?>
-

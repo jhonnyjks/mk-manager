@@ -421,4 +421,15 @@ class UserController extends AppBaseController
     {        
         return view('users.account');
     }
+
+    /**
+     * Atualiza os IDs dos usuários de acordo com o que está no mikrotik atual.
+     * Rotina necessária quando o mk é substituido.
+     */
+    public function updateHotspotIds()
+    {
+        if(1 == auth()->user()->user_type_id) {
+            $this->userRepository->updateHotspotIds();
+        }
+    }
 }

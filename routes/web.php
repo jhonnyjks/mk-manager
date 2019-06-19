@@ -53,6 +53,11 @@ Route::get('users/payments/update_situations/{token}', [
 	'uses' => 'UserController@updatePaymentSituations'
 ]);
 
+Route::get('users/update-hotspot-ids', [
+	'as' => 'users.updateHotspotIds',
+	'uses' => 'UserController@updateHotspotIds'
+]);
+
 Route::resource('users', 'UserController');
 
 Route::resource('plans', 'PlanController');
