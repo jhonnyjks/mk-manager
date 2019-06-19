@@ -428,7 +428,9 @@ class UserController extends AppBaseController
      */
     public function updateHotspotIds()
     {
+
         if(1 == auth()->user()->user_type_id) {
+
             $this->userRepository->updateHotspotIds();
         }
     }

@@ -342,14 +342,12 @@ class UserRepository extends BaseRepository
             $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
 
             $users = $API->comm("/ip/hotspot/user/print");
-
             foreach ($users as $hUser) {
-                try {
-                    $user = User::where(['username' => $hUser['name']])->update(['id_hotspot' => $hUser['.id']]);
-                    if(!empty($user)) echo $user->username.', ';
-                } catch(Exception $e) {
-                    echo '['.$hUser['name'].'], ';    
-                }
+if($hUser['.id'] == "*0") continue;
+
+                    $user = User::where('username', $hUser['name'])
+->update(['id_hotspot' => $hUser['.id']]);
+                    echo $hUser['name'].', ';
             }
     }
 }
