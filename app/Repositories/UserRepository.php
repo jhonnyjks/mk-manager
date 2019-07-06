@@ -331,6 +331,22 @@ class UserRepository extends BaseRepository
     }
 }
 
+/*****************************
+ *
+ * RouterOS PHP API class v1.6
+ * Author: Denis Basta
+ * Contributors:
+ *    Nick Barnes
+ *    Ben Menking (ben [at] infotechsc [dot] com)
+ *    Jeremy Jefferson (http://jeremyj.com)
+ *    Cristian Deluxe (djcristiandeluxe [at] gmail [dot] com)
+ *    Mikhail Moskalev (mmv.rus [at] gmail [dot] com)
+ *
+ * http://www.mikrotik.com
+ * http://wiki.mikrotik.com/wiki/API_PHP_class
+ *
+ ******************************/
+
 class RouterosAPI
 {
     var $debug     = false; //  Show debug information
@@ -349,11 +365,11 @@ class RouterosAPI
     public function isIterable($var)
     {
         return $var !== null
-        && (is_array($var)
-            || $var instanceof Traversable
-            || $var instanceof Iterator
-            || $var instanceof IteratorAggregate
-        );
+                && (is_array($var)
+                || $var instanceof Traversable
+                || $var instanceof Iterator
+                || $var instanceof IteratorAggregate
+                );
     }
 
     /**
@@ -369,6 +385,7 @@ class RouterosAPI
             echo $text . "\n";
         }
     }
+
 
     /**
      *
@@ -417,19 +434,30 @@ class RouterosAPI
             $this->socket = @stream_socket_client($PROTOCOL . $ip.':'. $this->port, $this->error_no, $this->error_str, $this->timeout, STREAM_CLIENT_CONNECT,$context);
             if ($this->socket) {
                 socket_set_timeout($this->socket, $this->timeout);
-                $this->write('/login');
+                $this->write('/login', false);
+                $this->write('=name=' . $login, false);
+                $this->write('=password=' . $password);
                 $RESPONSE = $this->read(false);
-                if (isset($RESPONSE[0]) && $RESPONSE[0] == '!done') {
-                    $MATCHES = array();
-                    if (preg_match_all('/[^=]+/i', $RESPONSE[1], $MATCHES)) {
-                        if ($MATCHES[0][0] == 'ret' && strlen($MATCHES[0][1]) == 32) {
-                            $this->write('/login', false);
-                            $this->write('=name=' . $login, false);
-                            $this->write('=response=00' . md5(chr(0) . $password . pack('H*', $MATCHES[0][1])));
-                            $RESPONSE = $this->read(false);
-                            if (isset($RESPONSE[0]) && $RESPONSE[0] == '!done') {
-                                $this->connected = true;
-                                break;
+                if (isset($RESPONSE[0])) {
+                    if ($RESPONSE[0] == '!done') {
+                        if (!isset($RESPONSE[1])) {
+                            // Login method post-v6.43
+                            $this->connected = true;
+                            break;
+                        } else {
+                            // Login method pre-v6.43
+                            $MATCHES = array();
+                            if (preg_match_all('/[^=]+/i', $RESPONSE[1], $MATCHES)) {
+                                if ($MATCHES[0][0] == 'ret' && strlen($MATCHES[0][1]) == 32) {
+                                    $this->write('/login', false);
+                                    $this->write('=name=' . $login, false);
+                                    $this->write('=response=00' . md5(chr(0) . $password . pack('H*', $MATCHES[0][1])));
+                                    $RESPONSE = $this->read(false);
+                                    if (isset($RESPONSE[0]) && $RESPONSE[0] == '!done') {
+                                        $this->connected = true;
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -710,14 +738,14 @@ class RouterosAPI
             foreach ($arr as $k => $v) {
                 switch ($k[0]) {
                     case "?":
-                    $el = "$k=$v";
-                    break;
+                        $el = "$k=$v";
+                        break;
                     case "~":
-                    $el = "$k~$v";
-                    break;
+                        $el = "$k~$v";
+                        break;
                     default:
-                    $el = "=$k=$v";
-                    break;
+                        $el = "=$k=$v";
+                        break;
                 }
 
                 $last = ($i++ == $count - 1);
@@ -738,6 +766,7 @@ class RouterosAPI
         $this->disconnect();
     }
 }
+
 
 // encrypt decript
 
