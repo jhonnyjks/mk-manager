@@ -88,7 +88,7 @@ class UserRepository extends BaseRepository
         // Segurança: se não for admin, só pode add usuario membro (type=3) 
         if(auth()->user()->user_type_id != 1) {
 
-            unset($attributes['user_type_id']);
+            $attributes['user_type_id'] = 3;
 
             if(auth()->user()->user_type_id != 2) {
                 unset($attributes['general_status_id']);
@@ -134,7 +134,7 @@ class UserRepository extends BaseRepository
             $params['name'] = $attributes['username'];
         }
 
-        if(!empty($params)) {
+        if(!empty($params) && 3 == $attributes['user_type_id']) {
             $user = User::find($id);
 
             $params['.id'] = $user->id_hotspot;
