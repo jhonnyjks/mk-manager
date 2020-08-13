@@ -134,7 +134,7 @@ class UserRepository extends BaseRepository
             $params['name'] = $attributes['username'];
         }
 
-        if(!empty($params) && 3 == $attributes['user_type_id']) {
+        if(!empty($params) && 3 == $user->user_type_id) {
             $user = User::find($id);
 
             $params['.id'] = $user->id_hotspot;
