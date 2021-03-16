@@ -103,6 +103,41 @@ class UserRepository extends BaseRepository
         if(!empty($attributes['password'])) {
             $params['password'] = $attributes['password'];
             $attributes['password'] = bcrypt($attributes['password']);
+
+            if(3 == $user->user_type_id) {
+                // Se o usuário não existir, será criado
+                $API = new RouterosAPI();
+                $API->port = env('MK_PORT');
+                $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));            
+                $API->comm("/ip/hotspot/user/set", $params);
+
+                $hsUser = $API->comm("/ip/hotspot/user/print", ['?name' => $user->username]);
+
+                if(empty($hsUser)) {
+                    if(empty($attributes['plan_id'])) $attributes['plan_id'] = $user->plan_id;
+                    
+                    $API = new RouterosAPI();
+                    $API->port = env('MK_PORT');
+                    $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
+        
+                    $API->comm('/ip/hotspot/user/add', [
+                        'name' => $attributes['username'],
+                        'profile' => Plan::find($attributes['plan_id'])->name,
+                        'password' => $params['password'],
+                        'disabled' => 'no',
+                        'server' => 'all'
+                    ]);
+        
+                    $hsUser = $API->comm("/ip/hotspot/user/print", ["?name" => $attributes['username']]);
+        
+                    if(empty($hsUser)) {
+                        return [];
+                    }
+        
+                    $attributes['id_hotspot'] = $hsUser[0]['.id'];
+                
+                }
+            }
         } else {
             $attributes['password'] = $user->password;
         }
@@ -342,13 +377,24 @@ class UserRepository extends BaseRepository
             $API->connect(env('MK_IP'), env('MK_USER'), env('MK_PASSWORD'));
 
             $users = $API->comm("/ip/hotspot/user/print");
-            foreach ($users as $hUser) {
-if($hUser['.id'] == "*0") continue;
 
-                    $user = User::where('username', $hUser['name'])
-->update(['id_hotspot' => $hUser['.id']]);
-                    echo $hUser['name'].', ';
+            $successeds = '';
+            $fails = '';
+            foreach ($users as $hUser) {
+                if($hUser['.id'] == "*0") continue;
+
+                $user = User::where('username', $hUser['name'])
+                    ->update(['id_hotspot' => $hUser['.id']]);
+
+                if($user) {
+                    $successeds .=  $hUser['name'].', ';
+                } else {
+                    $fails .=  $hUser['name'].', ';
+                }
+                
             }
+
+            echo 'Corrigidos: '.$successeds. '<br><br>'. 'Falhas: '.$fails;
     }
 }
 
